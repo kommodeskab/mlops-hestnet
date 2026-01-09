@@ -1,3 +1,3 @@
 from .basedataset import BaseDataset as BaseDataset
 from .dummy import DummyDataset as DummyDataset
-from .gigaword import DGigawordDataset as DGigawordDataset, tokenize_function
+from .gigaword import DGigawordDataset as DGigawordDataset, tokenize_function as tokenize_function

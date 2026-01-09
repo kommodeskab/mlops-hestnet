@@ -1,7 +1,7 @@
 from src.lightning_modules import BaseLightningModule
 from src.losses import BaseLossFunction
 import torch.nn as nn
-from src import OptimizerType, LRSchedulerType, Batch, ModelOutput, StepOutput
+from src import OptimizerType, LRSchedulerType, ModelOutput, StepOutput
 from transformers.tokenization_utils_base import BatchEncoding
 
 
