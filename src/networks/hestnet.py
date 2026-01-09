@@ -26,6 +26,7 @@ class HestNet(nn.Module):
         self.model = AutoModelForCausalLM.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
 
     def tokenize_function(self, elem):
+        print(elem)
         return self.tokenizer(elem["text"], truncation=True, return_tensors="pt")
 
     def get_tokinizer(checkpoint):

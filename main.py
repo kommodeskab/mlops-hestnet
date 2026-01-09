@@ -18,6 +18,7 @@ import yaml
 import logging
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
+wandb.init(mode="disabled")
 
 
 def update_dict(d: dict | list[dict]) -> None:

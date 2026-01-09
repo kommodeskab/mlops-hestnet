@@ -1,0 +1,4 @@
+_target_: src.data_modules.BaseDM
+
+trainset:
+  _target_: src.datasets.gigaword.DGigawordDataset
