@@ -1,4 +1,5 @@
 import torch
+import pytest
 from src.datasets import DummyDataset
 from src.datasets import DGigawordDataset
 from src.datasets.utils import get_tokenize_function
@@ -20,14 +21,14 @@ def test_dummy_dataset():
         assert data["target"].shape == (1,), "Target shape should be (1,)"
 
 
-def test_gigaword_dataset():
+@pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
+def test_gigaword_dataset(checkpoint):
     dataset = DGigawordDataset()
     N_TRAIN = 471550
     idx = (torch.randperm(N_TRAIN)[:100]).tolist()
     idx = [0] + idx + [-1]
     assert len(dataset) == N_TRAIN, f"Dataset length should be {N_TRAIN}"
 
-    checkpoint = "distilbert/distilgpt2"
     tokenize_function = get_tokenize_function(checkpoint)
 
     for i in idx:
@@ -49,6 +50,7 @@ def test_gigaword_dataset():
         assert data["attention_mask"].unique() == torch.tensor([1]), (
             f"attention_mask should only contain 1s, got {data['attention_mask'].unique()}"
         )
+
 
 
 if __name__ == "__main__":
