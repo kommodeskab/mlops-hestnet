@@ -17,7 +17,7 @@ We aim to implement a complete continuous integration pipeline with automated te
 # Instructions
 ## Clone repo
 ```bash
-git clone https://github.com/kommodeskab/Template.git
+git clone https://github.com/kommodeskab/mlops-hestnet.git
 ```
 Remember that you have to login. This can be done very easily with the Github CLI. Look it up.
 
