@@ -7,30 +7,32 @@ from dotenv import load_dotenv
 from transformers import AutoTokenizer
 
 load_dotenv()
-HF_TOKEN = os.getenv('HF_TOKEN')
-CACHE_DIR = Path(os.getenv('DATA_PATH')) # Works on different operating systems
+HF_TOKEN = os.getenv("HF_TOKEN")
+CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
 
 logger = logging.getLogger(__name__)
 
-checkpoint = "distilgpt2" # Abstract out later
+checkpoint = "distilgpt2"  # Abstract out later
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
+
 def tokenize_function(elem):
-    return tokenizer(elem['text'], truncation=True, return_tensors="pt")
+    return tokenizer(elem["text"], truncation=True, return_tensors="pt")
+
 
 class DGigawordDataset(BaseDataset):
     """Danish Gigaword dataset"""
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.name="danish-foundation-models/danish-gigaword"
+        self.name = "danish-foundation-models/danish-gigaword"
 
         self.ds = load_dataset(
             path=self.name,
             split="train",  # The dataset only has the trian split.
             cache_dir=str(CACHE_DIR),
-            token = HF_TOKEN,
-            **kwargs
+            token=HF_TOKEN,
+            **kwargs,
         )
         self.size = len(self.ds)
 
@@ -39,7 +41,7 @@ class DGigawordDataset(BaseDataset):
 
     def __getitem__(self, index: int):
         encoded_input = tokenize_function(self.ds[index])
-        return encoded_input # contains "input_ids" and "attention_mask"
+        return encoded_input  # contains "input_ids" and "attention_mask"
         # return Batch(input=input, target=target)
 
 
