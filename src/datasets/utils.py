@@ -1,32 +1,45 @@
 from pathlib import Path
 import os
 import logging
-from datasets import load_dataset
-from huggingface_hub import hf_hub_download
-import pandas as pd
+from datasets import load_dataset, get_dataset_config_names
 from dotenv import load_dotenv
+from src.datasets import tokenize_function
 
 load_dotenv()
 HF_TOKEN = os.getenv('HF_TOKEN')
-CACHE_DIR = Path("data") / "raw" / "danish_gigaword"
+CACHE_DIR = Path(os.getenv('DATA_PATH')) # Works on different operating systems
+PROCESSED_DATA_PATH = Path("data") / "processed" / "danish_gigaword"
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-def load_dataset(name, cache_dir = None, split = None):
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    # Huggingface api handles downloading the dataset and loading it if it is downloaded.
-    ds = load_dataset(
-        name,
-        split=split,
-        cache_dir=str(cache_dir),
-        token = HF_TOKEN,
-    )
-    logger.info(f"Loaded splits: {list(ds.keys())}")
-    return ds
-
-def load_danish_gigaword(cache_dir = None, split = None):
+def preprocess(save_path = PROCESSED_DATA_PATH, **kwargs):
     name = "danish-foundation-models/danish-gigaword"
-    load_dataset(name, cache_dir=cache_dir, split=split)
+    dataset = load_dataset(
+        path=name,
+        split="train",  # The dataset only has the trian split.
+        cache_dir=str(CACHE_DIR),
+        token = HF_TOKEN,
+        **kwargs
+    )
+    # Tokenize function is specific to "distillgpt2"
+    tokenized_dataset = dataset.map(tokenize_function, batched=True) 
+    tokenized_dataset.save_to_disk(save_path)
+    return tokenized_dataset
 
 if __name__ == "__main__":
-    load_danish_gigaword(cache_dir=CACHE_DIR)
+    name = "danish-foundation-models/danish-gigaword"
+    configs = get_dataset_config_names(name)
+    print(configs)
+    ds = load_dataset(
+        path=name,
+        split="train",  # The dataset only has the trian split.
+        cache_dir=str(CACHE_DIR),
+        token = HF_TOKEN
+    )
+    print(ds.features)
+    sample = ds[1]
+    #print(sample)
+    
+
+

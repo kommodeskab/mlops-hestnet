@@ -1,15 +1,10 @@
-import torch
 from src.datasets import BaseDataset
-from src import Batch
 from pathlib import Path
 import os
 import logging
 from datasets import load_dataset
-import pandas as pd
 from dotenv import load_dotenv
-
 from transformers import AutoTokenizer
-
 
 load_dotenv()
 HF_TOKEN = os.getenv('HF_TOKEN')
@@ -17,7 +12,7 @@ CACHE_DIR = Path(os.getenv('DATA_PATH')) # Works on different operating systems
 
 logger = logging.getLogger(__name__)
 
-checkpoint = "distilgpt2"
+checkpoint = "distilgpt2" # Abstract out later
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 def tokenize_function(elem):
