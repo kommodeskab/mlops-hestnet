@@ -26,7 +26,7 @@ class BaseDM(pl.LightningDataModule):
     ):
         """
         A base data module for datasets.
-        It takes a dataset and splits into train and validation (if val_dataset is None).
+        It takes a dataset and splits into train and validation (if valset is None).
         """
         super().__init__()
         self.trainset, self.valset = split_dataset(trainset, valset, train_val_split)
