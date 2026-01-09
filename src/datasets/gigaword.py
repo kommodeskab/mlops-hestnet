@@ -5,6 +5,8 @@ import logging
 from datasets import load_dataset
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
+from transformers.tokenization_utils_base import BatchEncoding
+
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -39,13 +41,19 @@ class DGigawordDataset(BaseDataset):
     def __len__(self) -> int:
         return self.size
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> BatchEncoding:
         encoded_input = tokenize_function(self.ds[index])
         return encoded_input  # contains "input_ids" and "attention_mask"
+        #
         # return Batch(input=input, target=target)
 
 
 if __name__ == "__main__":
     dataset = DGigawordDataset()
+    print(len(dataset))
     sample = dataset[0]
     print(sample)
+    for i in range(20):
+        sample = dataset[i]
+        print(sample['input_ids'].shape)
+        print(sample['attention_mask'].shape)

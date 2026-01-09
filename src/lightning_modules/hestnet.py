@@ -2,10 +2,11 @@ from src.lightning_modules import BaseLightningModule
 from src.losses import BaseLossFunction
 import torch.nn as nn
 from src import OptimizerType, LRSchedulerType, Batch, ModelOutput, StepOutput
+from transformers.tokenization_utils_base import BatchEncoding
 
 
-class DGigawordModule(BaseLightningModule):
-    """Danish Gigaword LightningModule"""
+class HestnetModule(BaseLightningModule):
+    """Hestnet LightningModule"""
 
     def __init__(
         self,
@@ -19,11 +20,11 @@ class DGigawordModule(BaseLightningModule):
         self.network = network
         self.loss_fn = loss_fn
 
-    def forward(self, batch: Batch) -> ModelOutput:
+    def forward(self, batch: BatchEncoding) -> ModelOutput:
         output = self.network(batch["input"])
         return ModelOutput(output=output)
 
-    def common_step(self, batch: Batch, batch_idx: int) -> ModelOutput:
+    def common_step(self, batch: BatchEncoding, batch_idx: int) -> ModelOutput:
         output = self.forward(batch)
         loss = self.loss_fn(output, batch)
         return StepOutput(
