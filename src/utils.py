@@ -119,7 +119,7 @@ def get_ckpt_path(
                 filename=filename,
             )
         except Exception as e:
-            logger.error(f"Checkpoint {ckpt_path} does not exist locally and could not be downloaded:\n{e}")
+            raise ValueError(f"Could not find or download checkpoint with filename '{filename}' for experiment id '{id}' in project '{project}'.") from e
 
     return ckpt_path
 
