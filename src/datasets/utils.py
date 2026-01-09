@@ -25,6 +25,7 @@ def preprocess(save_path=PROCESSED_DATA_PATH, **kwargs):
     )
     # Tokenize function is specific to "distillgpt2"
     tokenized_dataset = dataset.map(tokenize_function, batched=True)
+    save_path.mkdir(parents=True, exist_ok=True)
     tokenized_dataset.save_to_disk(save_path)
     return tokenized_dataset
 

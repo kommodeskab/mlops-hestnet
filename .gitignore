@@ -3,6 +3,7 @@
 /hpc
 /playgrounds
 /data
+/models
 
 # ruff cache
 /.ruff_cache

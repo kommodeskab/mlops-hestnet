@@ -14,9 +14,11 @@ CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
 
 logger = logging.getLogger(__name__)
 
-checkpoint = "distilgpt2"  # Abstract out later
+checkpoint = "distilbert/distilgpt2" # Abstract out later
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
+def get_tokinizer(checkpoint):
+    return AutoTokenizer.from_pretrained(checkpoint)
 
 def tokenize_function(elem):
     return tokenizer(elem["text"], truncation=True, return_tensors="pt")
