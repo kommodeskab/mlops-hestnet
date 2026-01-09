@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [project]
-name = "template"
+name = "mlops-hesnet"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
