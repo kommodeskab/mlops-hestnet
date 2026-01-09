@@ -3,7 +3,7 @@ import os
 import logging
 from datasets import load_dataset, get_dataset_config_names
 from dotenv import load_dotenv
-from src.datasets import tokenize_function
+from transformers import AutoTokenizer
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def preprocess(save_path=PROCESSED_DATA_PATH, **kwargs):
+def preprocess(checkpoint: str, save_path=PROCESSED_DATA_PATH, **kwargs):
     name = "danish-foundation-models/danish-gigaword"
     dataset = load_dataset(
         path=name,
@@ -23,11 +23,22 @@ def preprocess(save_path=PROCESSED_DATA_PATH, **kwargs):
         token=HF_TOKEN,
         **kwargs,
     )
-    # Tokenize function is specific to "distillgpt2"
+    tokenize_function = get_tokenize_function(checkpoint)
     tokenized_dataset = dataset.map(tokenize_function, batched=True)
     save_path.mkdir(parents=True, exist_ok=True)
     tokenized_dataset.save_to_disk(save_path)
     return tokenized_dataset
+
+
+def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
+    """Create a tokenize function for the given checkpoint."""
+
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+
+    def tokenize_function(elem):
+        return tokenizer(elem["text"], truncation=True, return_tensors="pt", **tokenizer_kwargs)
+
+    return tokenize_function
 
 
 if __name__ == "__main__":

@@ -24,13 +24,7 @@ def image(c: Context):
 @task
 def dockermain(c: Context, extra: str = ""):
     """Run main.py inside the Docker development container. Specify the 'extra' argument to add extra command line arguments."""
-    c.run(
-        "docker run --rm "
-        "-v $(pwd):/app "
-        "-v uv-venv:/app/.venv "
-        "-v uv-cache:/root/.cache/uv "
-        f"main-image {extra}"
-    )
+    c.run(f"docker run --rm -v $(pwd):/app -v uv-venv:/app/.venv -v uv-cache:/root/.cache/uv main-image {extra}")
 
 
 @task
