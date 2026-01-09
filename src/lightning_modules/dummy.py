@@ -28,7 +28,6 @@ class DummyModule(BaseLightningModule):
         loss = self.loss_fn(output, batch)
         return StepOutput(
             loss=loss["loss"],
-            batch=batch,
             loss_output=loss,
             model_output=output,
         )
