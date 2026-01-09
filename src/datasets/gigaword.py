@@ -55,5 +55,5 @@ if __name__ == "__main__":
     print(sample)
     for i in range(20):
         sample = dataset[i]
-        print(sample['input_ids'].shape)
-        print(sample['attention_mask'].shape)
+        print(sample["input_ids"].shape)
+        print(sample["attention_mask"].shape)
