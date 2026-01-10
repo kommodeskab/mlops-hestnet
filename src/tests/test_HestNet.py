@@ -8,7 +8,7 @@ def test_HestNet(checkpoint):
     """Test HestNet model initialization and forward pass."""
     model = HestNet(checkpoint)
     text = "Jeg bor i et kommodeskab"
-    outputs = model({"text": text})
+    outputs = model(text)
 
     # Test that outputs contain required attributes
     assert hasattr(outputs, "loss"), "Model outputs should contain 'loss' attribute"
@@ -32,6 +32,6 @@ def test_HestNet(checkpoint):
 
     # Test with different input
     text2 = "Dette er en test"
-    outputs2 = model({"text": text2})
+    outputs2 = model(text2)
     assert hasattr(outputs2, "loss"), "Model should work with different inputs"
     assert not torch.isnan(outputs2.loss), "Loss should be valid for different inputs"
