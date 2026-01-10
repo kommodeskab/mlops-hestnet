@@ -57,7 +57,10 @@ class HestNet(nn.Module):
         """Decode text embeddings"""
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-    def forward(self, inputs, **kwargs) -> CausalLMOutputWithCrossAttentions:
+    def forward(self, inputs, raw_text = False, **kwargs) -> CausalLMOutputWithCrossAttentions:
+        if raw_text: # Nice functionality to have, but in the long run i do not want to mix input types.
+            inputs = self.tokenizer(inputs, return_tensors="pt")
+            inputs = inputs | {"labels": inputs["input_ids"]}
         if "labels" not in inputs and "labels" not in kwargs:
             raise ValueError("inputs must contain 'labels' dict or labels parameter must be passed explicitly")
         outputs = self.model(**inputs, **kwargs) # inputs contains "input_ids", "attention_mask" and "labels"
@@ -80,6 +83,11 @@ def main(cfg: DictConfig) -> None:
     print(type(outputs))
 
     outputs = model.generate(inputs, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
+    response = model.decode(outputs)
+    print(response)
+
+    # Temporary functionality allowing for passing prompts directly. Enjoy while it lasts.
+    model(prompt, raw_text = True)
     response = model.decode(outputs)
     print(response)
 
