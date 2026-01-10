@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-from torch import Tensor
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from dotenv import load_dotenv
 from pathlib import Path
@@ -8,7 +6,7 @@ import os
 import hydra
 from omegaconf import DictConfig
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
-
+from src import TensorDict
 
 load_dotenv()
 MODEL_DIR = Path(os.getenv("MODEL_PATH")) / "pretrained"
@@ -57,8 +55,8 @@ class HestNet(nn.Module):
         """Decode text embeddings"""
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-    def forward(self, inputs, raw_text = False, **kwargs) -> CausalLMOutputWithCrossAttentions:
-        if raw_text: # Nice functionality to have, but in the long run i do not want to mix input types.
+    def forward(self, inputs: TensorDict, raw_text = False, **kwargs) -> CausalLMOutputWithCrossAttentions:
+        if raw_text: # Nice functionality to have, but in the long run I do not want to mix input types.
             inputs = self.tokenizer(inputs, return_tensors="pt")
             inputs = inputs | {"labels": inputs["input_ids"]}
         if "labels" not in inputs and "labels" not in kwargs:
@@ -81,6 +79,8 @@ def main(cfg: DictConfig) -> None:
     print(f"Loss: {outputs.loss.item():.4f}")
     print(f"Logits shape: {outputs.logits.shape}")
     print(type(outputs))
+    print(type(outputs.loss))
+    print(type(outputs.loss.item()))
 
     outputs = model.generate(inputs, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
     response = model.decode(outputs)

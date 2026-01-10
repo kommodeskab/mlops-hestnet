@@ -2,7 +2,7 @@ from typing import Optional
 from pathlib import Path
 import os
 import logging
-from datasets import load_dataset, get_dataset_config_names, Dataset
+from datasets import load_dataset
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
 

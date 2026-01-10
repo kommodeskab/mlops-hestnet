@@ -73,7 +73,8 @@ def _validate_tokenized_sample(sample):
 def test_dgigaword_dataset(size):
     """Test raw DGigawordDataset returns text samples."""
     dataset = DGigawordDataset(size)
-    if size is None: size = N_TRAIN
+    if size is None:
+        size = N_TRAIN
     assert len(dataset) == size, f"Dataset length should be {size}, got {len(dataset)}"
     assert "text" in dataset.column_names, f"Dataset should have 'text' column, got {dataset.column_names}"
     
@@ -95,7 +96,8 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
         preprocess=preprocess,
         num_proc=num_proc
     )
-    if size is None: size = N_TRAIN
+    if size is None:
+        size = N_TRAIN
     assert len(dataset) == size, f"Dataset length should be {size}, got {len(dataset)}"
     assert dataset.preprocessed == preprocess, (
         f"Dataset preprocessed state should be {preprocess}, got {dataset.preprocessed}"

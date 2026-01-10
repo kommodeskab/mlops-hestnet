@@ -1,5 +1,4 @@
-from typing import Optional, Dict
-from torch import Tensor
+from typing import Optional
 from src.datasets import BaseDataset
 from pathlib import Path
 import os
@@ -8,7 +7,7 @@ from datasets import load_dataset, Dataset
 from dotenv import load_dotenv
 from src.datasets.utils import get_tokenize_function
 from transformers import AutoTokenizer
-TensorDict = Dict[str, Tensor]
+from src import TensorDict
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
@@ -112,7 +111,7 @@ class TDGigawordDataset(DGigawordDataset):
             return self._labels_map(tokenized)
 
     def _preprocess(self, num_proc: int = 4) -> Dataset:
-        assert self.preprocessed == False, "Called _preprocess but dataset is already preprocessed!"
+        assert not self.preprocessed, "Called _preprocess but dataset is already preprocessed!"
 
         processed_ds = self.ds.map(
             self.tokenize_function, 
@@ -175,4 +174,5 @@ if __name__ == "__main__":
         print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
         print(batch['input_ids'].shape)  # [batch_size, seq_len]
         print(batch['labels'].shape)     # [batch_size, seq_len]
-        if i == 10: break
+        if i == 10:
+            break

@@ -4,9 +4,6 @@ network:
   _target_: src.networks.HestNet
   checkpoint: ${checkpoint}
 
-loss_fn:
-  _target_: src.losses.MSELoss
-
 optimizer:
   _target_: torch.optim.AdamW
   _partial_: True
