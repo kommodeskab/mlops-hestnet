@@ -57,23 +57,11 @@ class HestNet(nn.Module):
         """Decode text embeddings"""
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-
-    # @property
-    # def model(self):
-    #     return self.model
-
-    # def tokenize_function(self, elem):
-    #     print(elem)
-    #     return self.tokenizer(elem, truncation=True, return_tensors="pt")
-
-    # def _get_tokinizer(self):
-    #     return self.tokenizer
-
     def forward(self, inputs, **kwargs) -> CausalLMOutputWithCrossAttentions:
-        # encoded_input = self.tokenize_function(inputs)  # contains "input_ids", "attention_mask" and "labels"
-        outputs = self.model(**inputs, **kwargs)
+        if "labels" not in inputs and "labels" not in kwargs:
+            raise ValueError("inputs must contain 'labels' dict or labels parameter must be passed explicitly")
+        outputs = self.model(**inputs, **kwargs) # inputs contains "input_ids", "attention_mask" and "labels"
         return outputs
-    #: dict[str: Tensor]
 
 
 @hydra.main(version_base=None, config_path="../../configs", config_name="config")
@@ -94,10 +82,6 @@ def main(cfg: DictConfig) -> None:
     outputs = model.generate(inputs, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
     response = model.decode(outputs)
     print(response)
-    # answer_start_index = outputs.start_logits.argmax()
-    # answer_end_index = outputs.end_logits.argmax()
-    # predict_answer_tokens = inputs.input_ids[0, answer_start_index : answer_end_index + 1]
-    # tokenizer.decode(predict_answer_tokens, skip_special_tokens=True)
 
     # Equivalent example
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
