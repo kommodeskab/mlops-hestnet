@@ -6,7 +6,7 @@ import logging
 from datasets import load_dataset, Dataset
 from dotenv import load_dotenv
 from src.datasets.utils import get_tokenize_function
-
+from transformers import AutoTokenizer
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
@@ -37,6 +37,19 @@ class DGigawordDataset(BaseDataset):
             self.ds = self.ds.shuffle(seed=42).select(range(size))
         self.size = len(self.ds)
 
+    @property
+    def features(self):
+        """Dynamically return current dataset features."""
+        return self.ds.features
+
+    @property
+    def column_names(self):
+        return self.ds.column_names
+
+    @property
+    def config_name(self):
+        return self.ds.config_name
+
     def __len__(self) -> int:
         return self.size
 
@@ -54,6 +67,8 @@ class DGigawordDataset(BaseDataset):
         )
         logger.info(f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples")
         return processed_ds
+    
+    
 
 class TDGigawordDataset(DGigawordDataset):
     """Tokenized Danish Gigaword dataset"""
@@ -68,7 +83,8 @@ class TDGigawordDataset(DGigawordDataset):
     ):
         super().__init__(size, **kwargs)
         self.checkpoint = checkpoint if checkpoint else "distilbert/distilgpt2"
-        self.tokenize_function = get_tokenize_function(checkpoint)
+        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
         self.preprocessed = False
 
         if preprocess:
@@ -76,6 +92,8 @@ class TDGigawordDataset(DGigawordDataset):
                 raise ValueError("checkpoint must be provided when preprocess=True")
             self.preprocess(num_proc)
 
+    def tokenize_function(self, elem):
+        return self.tokenizer(elem["text"], padding=True, truncation=True, return_tensors="pt")
 
     def __len__(self) -> int:
         return self.size
@@ -105,6 +123,7 @@ class TDGigawordDataset(DGigawordDataset):
             return
         
         self.ds = self._preprocess(num_proc)
+        self.ds.set_format("torch") # function changes dataset in-place
         self.size = len(self.ds)
         self.preprocessed = True
     
@@ -118,30 +137,35 @@ if __name__ == "__main__":
     # Standard DGigawordDataset returns dictionaries with text
     dataset = DGigawordDataset(1000)
     print(len(dataset))
-    print(dataset.ds.features)
+    print(dataset.features)
     for i in range(10):
         sample = dataset[i]
         print(sample)
 
-    # TDGigawordDataset returns dictionaries with toekens and attention maps.
+    # TDGigawordDataset returns dictionaries with tokens and attention maps.
     checkpoint = "distilbert/distilgpt2"
     dataset = TDGigawordDataset(checkpoint, 1000)
-    print(dataset.ds.features)
+    print(dataset.features)
     for i in range(10):
         sample = dataset[i]
         print(sample["input_ids"].shape)
         print(sample["attention_mask"].shape)
-    dataset.ds.column_names
     
     dataset = TDGigawordDataset(checkpoint, 1000, preprocess=True)
-    print(dataset.ds.features)
+    print(dataset.features)
+    for i in range(10):
+        sample = dataset[i]
+        print(sample["input_ids"].shape)
+        print(sample["attention_mask"].shape)
 
-    # from torch.utils.data import DataLoader, random_split, Dataset
-    # dl = DataLoader(dataset=dataset)
-    # for batch in dl:
-    #     print(batch)
-    #     break
+    from torch.utils.data import DataLoader
+    from transformers import DataCollatorForLanguageModeling
+    data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
 
-    # for i in range(20):
-    #     sample = next(dl)
-    #     print(sample)
+    dl = DataLoader(dataset=dataset, collate_fn=data_collator)
+
+    for i, batch in enumerate(dl):
+        print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
+        print(batch['input_ids'].shape)  # [batch_size, seq_len]
+        print(batch['labels'].shape)     # [batch_size, seq_len]
+        if i == 10: break
