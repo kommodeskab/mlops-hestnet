@@ -2,7 +2,7 @@ _target_: src.lightning_modules.HestnetModule
 
 network:
   _target_: src.networks.HestNet
-  checkpoint: distilbert/distilgpt2
+  checkpoint: ${checkpoint}
 
 loss_fn:
   _target_: src.losses.MSELoss

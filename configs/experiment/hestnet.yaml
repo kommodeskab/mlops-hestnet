@@ -11,9 +11,8 @@ project_name: 'hestnet_experiment'
 task_name: 'hestnet_task'
 compile: False # we can only compile on GPU
 phase: 'train'
+checkpoint: distilbert/distilgpt2
 
-# we can also override specific parameters here if needed
-# for example
 data:
   batch_size: 16
 

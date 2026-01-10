@@ -1,4 +1,7 @@
-_target_: src.data_modules.BaseDM
+_target_: src.data_modules.TDGigawordDM
+train_val_split: 0.9
 
 trainset:
-  _target_: src.datasets.gigaword.DGigawordDataset
+  _target_: src.datasets.gigaword.TDGigawordDataset
+  checkpoint: ${checkpoint}
+  size: 1000
