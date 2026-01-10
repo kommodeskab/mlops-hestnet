@@ -28,7 +28,34 @@ class HestNet(nn.Module):
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
         self.tokenizer.pad_token = self.tokenizer.eos_token
     
+    def generate(self, inputs, **generation_kwargs):
+        """
+        Generate text embeddings from input.
+        
+        Args:
+            input_ids: Input token IDs
+            attention_mask: Attention mask
+            **generation_kwargs: Arguments for generate (max_new_tokens, do_sample, etc.)
+        """
+        generation_params = {
+            "max_new_tokens": 100,
+            "do_sample": True,
+            "top_k": 50,
+            "top_p": 0.95,
+            "pad_token_id": self.tokenizer.eos_token_id,
+        }
+        generation_params.update(generation_kwargs)
 
+        outputs = self.model.generate(
+            inputs.input_ids, 
+            attention_mask= inputs.attention_mask, 
+            **generation_params
+            )
+        return outputs
+
+    def decode(self, outputs):
+        """Decode text embeddings"""
+        return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
 
     # @property
@@ -64,8 +91,8 @@ def main(cfg: DictConfig) -> None:
     print(f"Logits shape: {outputs.logits.shape}")
     print(type(outputs))
 
-    outputs = model.model.generate(inputs.input_ids, attention_mask= inputs.attention_mask, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
-    response = model.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    outputs = model.generate(inputs, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
+    response = model.decode(outputs)
     print(response)
     # answer_start_index = outputs.start_logits.argmax()
     # answer_end_index = outputs.end_logits.argmax()
