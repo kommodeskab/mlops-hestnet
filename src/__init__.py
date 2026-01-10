@@ -1,5 +1,6 @@
-from typing import TypedDict, Dict, Optional
+from typing import TypedDict, Dict, Optional, Union
 from functools import partial
+import os
 from torch import Tensor
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
@@ -12,7 +13,7 @@ TensorDict = Dict[str, Tensor]
 OptimizerType = Optional[partial[Optimizer]]
 LRSchedulerType = Optional[dict[str, partial[LRScheduler] | str]]
 ImageType = list[Tensor | Figure | np.ndarray]
-
+PathLike = Union[str, bytes, os.PathLike]
 
 class Batch(TypedDict):
     input: Tensor

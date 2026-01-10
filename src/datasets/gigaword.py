@@ -97,12 +97,24 @@ class TDGigawordDataset(DGigawordDataset):
         num_proc: int = 4,
         **kwargs
     ):
-        if preprocessed_path:
-            super().__init__(size=None, skip_load=preprocessed_path, **kwargs)
-            self.ds = load_from_disk(preprocessed_path, keep_in_memory=False)
-            self.ds.set_format("torch")
-            self.size = len(self.ds)
-            self.preprocessed = True 
+        if preprocessed_path: 
+            try:
+                super().__init__(size=None, skip_load=preprocessed_path, **kwargs)
+                self.ds = load_from_disk(preprocessed_path, keep_in_memory=False)
+                if size:
+                    self.ds = self.ds.shuffle(seed=42).select(range(size))
+                self.ds.set_format("torch")
+                self.size = len(self.ds)
+                self.preprocessed = True
+                logger.info(f"Preprocessed dataset successfully loaded from disk at {preprocessed_path}") 
+            except (FileNotFoundError, Exception) as e:
+                raise FileNotFoundError(
+                    f"Could not load preprocessed dataset from: {preprocessed_path}\n"
+                    f"Error: {e}\n\n"
+                    f"Please preprocess the dataset first:\n"
+                    f"Set configs/preprocess.yaml then run\n"
+                    f"  invoke preprocess\n"
+                ) from e
         else:
             super().__init__(size, **kwargs)
             self.preprocessed = False
@@ -164,6 +176,7 @@ class TDGigawordDataset(DGigawordDataset):
 
 
 if __name__ == "__main__":
+    N = 2    
     # Standard DGigawordDataset returns dictionaries with text
     dataset = DGigawordDataset(1000)
     print(len(dataset))
@@ -172,18 +185,30 @@ if __name__ == "__main__":
         sample = dataset[i]
         print(sample)
 
-    # # TDGigawordDataset returns dictionaries with tokens and attention maps.
+    # TDGigawordDataset returns dictionaries with tokens and attention maps.
     checkpoint = "distilbert/distilgpt2"
     dataset = TDGigawordDataset(checkpoint, 1000)
     print(dataset.features)
-    for i in range(10):
+    for i in range(N):
         sample = dataset[i]
         print(sample["input_ids"].shape)
         print(sample["attention_mask"].shape)
 
+    # Preprocess upon load
     dataset = TDGigawordDataset(checkpoint, 1000, preprocess=True, num_proc=8)
     print(dataset.features)
-    for i in range(10):
+    for i in range(N):
+        sample = dataset[i]
+        print(sample["input_ids"].shape)
+        print(sample["attention_mask"].shape)
+
+    # Load preprocessed data from disk
+    PROCESSED_DATA_PATH = Path("data/processed/danish_gigaword")
+    checkpoint = "distilbert/distilgpt2"
+    dataset = TDGigawordDataset(checkpoint, None, preprocessed_path=PROCESSED_DATA_PATH, num_proc=8)
+    print(dataset.features)
+    print(f"{dataset.size=}")
+    for i in range(N):
         sample = dataset[i]
         print(sample["input_ids"].shape)
         print(sample["attention_mask"].shape)
@@ -195,8 +220,8 @@ if __name__ == "__main__":
     dl = DataLoader(dataset=dataset, collate_fn=data_collator)
 
     for i, batch in enumerate(dl):
-        print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
+        # print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
         print(batch['input_ids'].shape)  # [batch_size, seq_len]
         print(batch['labels'].shape)     # [batch_size, seq_len]
-        if i == 10:
+        if i == N:
             break
