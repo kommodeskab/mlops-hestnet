@@ -1,8 +1,10 @@
-from torch_ema import ExponentialMovingAverage
+import logging
+
 import pytorch_lightning as pl
 from pytorch_lightning import Callback
 from torch.optim import Optimizer
-import logging
+from torch_ema import ExponentialMovingAverage
+
 from src.lightning_modules import BaseLightningModule
 
 logger = logging.getLogger(__name__)

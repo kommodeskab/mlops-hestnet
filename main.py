@@ -1,29 +1,28 @@
-from omegaconf import DictConfig
-from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import WandbLogger
-from omegaconf import OmegaConf
-from src.utils import (
-    instantiate_callbacks,
-    get_ckpt_path,
-    model_config_from_id,
-    get_current_time,
-)
-import pytorch_lightning as pl
+import logging
 import os
+
 import hydra
+import pytorch_lightning as pl
 import torch
-from pytorch_lightning import LightningDataModule, LightningModule, Callback
 import wandb
 import yaml
-import logging
+from omegaconf import DictConfig, OmegaConf
+from pytorch_lightning import Callback, LightningDataModule, LightningModule, Trainer
+from pytorch_lightning.loggers import WandbLogger
+
+from src.utils import (
+    get_ckpt_path,
+    get_current_time,
+    instantiate_callbacks,
+    model_config_from_id,
+)
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
 wandb.init(mode="disabled")
 
 
 def update_dict(d: dict | list[dict]) -> None:
-    """
-    Recursively update the dictionary to replace the PretrainedModel config with the one from the experiment id of the pretrained model.
+    """Recursively update the dictionary to replace the PretrainedModel config with the one from the experiment id of the pretrained model.
     Why? Because if the the same model is finetuned multiple times, the initialization process will be a mess since it will load all previous configs.
     """
     if isinstance(d, dict):
@@ -34,7 +33,7 @@ def update_dict(d: dict | list[dict]) -> None:
             model_config = model_config_from_id(project, id, model_keyword)
             d.clear()
             d.update(model_config)
-        for k, v in d.items():
+        for _k, v in d.items():
             update_dict(v)
     elif isinstance(d, list):
         for v in d:

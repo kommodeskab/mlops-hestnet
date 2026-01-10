@@ -1,15 +1,15 @@
-from typing import TypedDict, Dict, Optional, Union
-from functools import partial
 import os
+from functools import partial
+from typing import Dict, Optional, TypeAlias, TypedDict, Union
+
+import numpy as np
+from matplotlib.figure import Figure
 from torch import Tensor
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
-from matplotlib.figure import Figure
-import numpy as np
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
-from typing import TypeAlias
 
-TensorDict = Dict[str, Tensor]
+TensorDict = dict[str, Tensor]
 OptimizerType = Optional[partial[Optimizer]]
 LRSchedulerType = Optional[dict[str, partial[LRScheduler] | str]]
 ImageType = list[Tensor | Figure | np.ndarray]
@@ -30,8 +30,8 @@ class LossOutput(TypedDict):
 
 class StepOutput(TypedDict):
     loss: Tensor
-    model_output: Optional[ModelOutput] = None
-    loss_output: Optional[LossOutput] = None
+    model_output: ModelOutput | None = None
+    loss_output: LossOutput | None = None
 
 # Hestnet
 class HestNetBatch(TypedDict):
@@ -39,10 +39,10 @@ class HestNetBatch(TypedDict):
     attention_mask: Tensor
     labels: Tensor
 
-HestNetOutput: TypeAlias = CausalLMOutputWithCrossAttentions
+type HestNetOutput = CausalLMOutputWithCrossAttentions
 # class HestnetOutput(TypedDict):
 #     output: CausalLMOutputWithCrossAttentions
 
 class HestNetStepOutput(TypedDict):
     loss: Tensor
-    model_output: Optional[ModelOutput] = None
+    model_output: ModelOutput | None = None

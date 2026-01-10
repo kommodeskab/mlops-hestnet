@@ -1,9 +1,11 @@
-from src.lightning_modules import BaseLightningModule
 import torch.nn as nn
-from src import OptimizerType, LRSchedulerType, HestNetBatch, HestNetOutput, HestNetStepOutput
+
+from src import HestNetBatch, HestNetOutput, HestNetStepOutput, LRSchedulerType, OptimizerType
+from src.lightning_modules import BaseLightningModule
+
 
 class HestnetModule(BaseLightningModule):
-    """Hestnet LightningModule"""
+    """Hestnet LightningModule."""
 
     def __init__(
         self,
@@ -17,8 +19,7 @@ class HestnetModule(BaseLightningModule):
         self.network = network
 
     def forward(self, batch: HestNetBatch) -> HestNetOutput:
-        output = self.network(batch)
-        return output
+        return self.network(batch)
         # return HestnetOutput()
         # return ModelOutput(output=output)
 

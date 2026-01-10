@@ -1,13 +1,13 @@
-import pytorch_lightning as pl
-from torch.utils.data import DataLoader, random_split, Dataset
-from typing import Optional
 import logging
+
+import pytorch_lightning as pl
+from torch.utils.data import DataLoader, Dataset, random_split
 
 logger = logging.getLogger(__name__)
 
 
 def split_dataset(
-    train_dataset: Dataset, val_dataset: Optional[Dataset], train_val_split: Optional[float | int] = None
+    train_dataset: Dataset, val_dataset: Dataset | None, train_val_split: float | None = None,
 ) -> tuple[Dataset, Dataset]:
     if train_val_split is not None:
         train_dataset, val_dataset = random_split(train_dataset, [train_val_split, 1 - train_val_split])
@@ -19,13 +19,12 @@ class BaseDM(pl.LightningDataModule):
     def __init__(
         self,
         trainset: Dataset,
-        valset: Optional[Dataset] = None,
-        testset: Optional[Dataset] = None,
-        train_val_split: Optional[float | int] = None,
+        valset: Dataset | None = None,
+        testset: Dataset | None = None,
+        train_val_split: float | None = None,
         **kwargs,
     ):
-        """
-        A base data module for datasets.
+        """A base data module for datasets.
         It takes a dataset and splits into train and validation (if valset is None).
         """
         super().__init__()

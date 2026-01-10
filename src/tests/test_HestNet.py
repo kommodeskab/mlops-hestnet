@@ -1,5 +1,6 @@
 import pytest
 import torch
+
 from src.networks import HestNet
 
 
@@ -9,7 +10,7 @@ def test_HestNet(checkpoint):
     model = HestNet(checkpoint)
     text = "Jeg bor i et kommodeskab"
     inputs = model.tokenizer(text, return_tensors="pt")
-    outputs = model(inputs, labels=inputs["input_ids"])  
+    outputs = model(inputs, labels=inputs["input_ids"])
 
     # Test that outputs contain required attributes
     assert hasattr(outputs, "loss"), "Model outputs should contain 'loss' attribute"
@@ -34,7 +35,7 @@ def test_HestNet(checkpoint):
     # Test with different input
     text2 = "Dette er en test"
     inputs = model.tokenizer(text2, return_tensors="pt")
-    outputs2 = model(inputs, labels=inputs["input_ids"])  
+    outputs2 = model(inputs, labels=inputs["input_ids"])
     assert hasattr(outputs2, "loss"), "Model should work with different inputs"
     assert not torch.isnan(outputs2.loss), "Loss should be valid for different inputs"
 

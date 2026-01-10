@@ -1,5 +1,5 @@
-from invoke import task, Context
-from typing import Optional
+
+from invoke import Context, task
 
 
 @task
@@ -34,7 +34,7 @@ def format(c: Context):
 
 
 @task
-def typing(c: Context, filename: Optional[str] = None):
+def typing(c: Context, filename: str | None = None):
     """Check typing using mypy."""
     filename = filename.strip() if filename else "."
 
@@ -70,8 +70,7 @@ def build(c: Context):
 
 @task
 def update(c: Context):
-    """
-    Auto-detect imports and update pyproject.toml.
+    """Auto-detect imports and update pyproject.toml.
     WARNING: This may overwrite manual version constraints.
     """
     c.run("echo Detecting dependencies from source code...")
@@ -96,8 +95,7 @@ def submit(
     walltime="3:00",
     jobname=None,
 ):
-    """
-    Submit a training job to HPC using bsub.
+    """Submit a training job to HPC using bsub.
 
     Args:
         experiment: Name of the experiment config (without .yaml)
@@ -111,9 +109,10 @@ def submit(
     Example:
         invoke submit --experiment=template
         invoke submit --experiment=myexp --gpu=gpua100 --walltime=24:00
+
     """
-    import tempfile
     import os
+    import tempfile
 
     # Use experiment name as2 job name if not provided
     if jobname is None:
@@ -175,12 +174,12 @@ def status(c: Context, user=None):
 
 @task
 def logs(c: Context, jobid=None, tail=50):
-    """
-    View logs from HPC jobs.
+    """View logs from HPC jobs.
 
     Args:
         jobid: Job ID to view logs for (if None, shows latest)
         tail: Number of lines to show (default: 50)
+
     """
     if jobid:
         c.run(f"tail -n {tail} hpc/output_{jobid}.out")

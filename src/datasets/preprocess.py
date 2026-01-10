@@ -1,18 +1,17 @@
-from omegaconf import DictConfig
-from omegaconf import OmegaConf
+import gc
+import logging
 import os
+from pathlib import Path
+
 import hydra
 import yaml
-import logging
-from typing import Optional
-from pathlib import Path
-from datasets import load_dataset, Dataset
 from dotenv import load_dotenv
-import gc
 from memory_profiler import profile
+from omegaconf import DictConfig, OmegaConf
 
-from src.datasets.utils import get_tokenize_function
+from datasets import Dataset, load_dataset
 from src import PathLike
+from src.datasets.utils import get_tokenize_function
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -23,14 +22,14 @@ os.environ["HYDRA_FULL_ERROR"] = "1"
 @profile
 def preprocess(
         name: str,
-        checkpoint: str, 
+        checkpoint: str,
         save_path: PathLike,
-        size: Optional[int] = None,
+        size: int | None = None,
         batch_size: int = 1000,
         num_proc: int = 4,
         writer_batch_size: int = 1000,
         **kwargs):
-    
+
     dataset: Dataset = load_dataset(
         path=name,
         split="train",  # The dataset only has the trian split.
@@ -42,11 +41,11 @@ def preprocess(
         dataset = dataset.shuffle(seed=42).select(range(size))
     tokenize_function = get_tokenize_function(checkpoint)
     tokenized_dataset = dataset.map(
-        tokenize_function, 
+        tokenize_function,
         batch_size=batch_size,
-        writer_batch_size=writer_batch_size, 
+        writer_batch_size=writer_batch_size,
         num_proc=num_proc,
-        keep_in_memory=False, 
+        keep_in_memory=False,
         remove_columns=dataset.column_names,
     )
 
@@ -68,9 +67,9 @@ def my_app(cfg: DictConfig) -> None:
     # Load and preprocess the dataset
 
     ds = preprocess(
-        name=cfg.name, 
+        name=cfg.name,
         checkpoint=cfg.checkpoint,
-        save_path=save_path, 
+        save_path=save_path,
         size=cfg.size,
         batch_size=cfg.checkpoint,
         writer_batch_size=cfg.checkpoint,

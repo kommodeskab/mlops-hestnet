@@ -1,13 +1,14 @@
+
 import pytorch_lightning as pl
+import torch
+import torch.nn.init as init
 from pytorch_lightning.loggers import WandbLogger
 from torch import nn
-import torch.nn.init as init
-import torch
-from src.data_modules import BaseDM
-from src import OptimizerType, LRSchedulerType, Batch, ModelOutput, ImageType
-from src.utils import temporary_seed
 from torch.utils.data import Dataset
-from typing import Optional
+
+from src import Batch, ImageType, LRSchedulerType, ModelOutput, OptimizerType
+from src.data_modules import BaseDM
+from src.utils import temporary_seed
 
 
 class BaseLightningModule(pl.LightningModule):
@@ -29,11 +30,11 @@ class BaseLightningModule(pl.LightningModule):
         return self.datamodule.trainset
 
     @property
-    def valset(self) -> Optional[Dataset]:
+    def valset(self) -> Dataset | None:
         return self.datamodule.valset
 
     @property
-    def testset(self) -> Optional[Dataset]:
+    def testset(self) -> Dataset | None:
         return self.datamodule.testset
 
     @property
@@ -46,9 +47,8 @@ class BaseLightningModule(pl.LightningModule):
 
     @staticmethod
     def init_weights(model: nn.Module) -> None:
-        """
-        Initializes the weights of the forward and backward models
-        using the Kaiming Normal initialization
+        """Initializes the weights of the forward and backward models
+        using the Kaiming Normal initialization.
         """
 
         @torch.no_grad()
@@ -60,11 +60,7 @@ class BaseLightningModule(pl.LightningModule):
             elif isinstance(m, nn.BatchNorm2d):
                 init.constant_(m.weight, 1)
                 init.constant_(m.bias, 0)
-            elif isinstance(m, nn.Linear):
-                init.kaiming_normal_(m.weight, mode="fan_out")
-                if m.bias is not None:
-                    init.constant_(m.bias, 0)
-            elif isinstance(m, nn.ConvTranspose2d):
+            elif isinstance(m, (nn.Linear, nn.ConvTranspose2d)):
                 init.kaiming_normal_(m.weight, mode="fan_out")
                 if m.bias is not None:
                     init.constant_(m.bias, 0)
@@ -73,11 +69,11 @@ class BaseLightningModule(pl.LightningModule):
         model.apply(initialize)
 
     def common_step(self, batch: Batch, batch_idx: int) -> ModelOutput:
-        """
-        The common step contains the logic for both training, validation, and test steps. \n
+        r"""The common step contains the logic for both training, validation, and test steps. \n
         If train/val/test steps differ, override them in the subclass.
         """
-        raise NotImplementedError("This method should be implemented in subclasses.")
+        msg = "This method should be implemented in subclasses."
+        raise NotImplementedError(msg)
 
     def training_step(self, batch: Batch, batch_idx: int) -> ModelOutput:
         return self.common_step(batch, batch_idx)

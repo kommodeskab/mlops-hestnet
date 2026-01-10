@@ -1,5 +1,6 @@
-import requests
 import os
+
+import requests
 
 
 def update_zotero_bib(user_id: str, collection_id: str | None = None, api_key: str | None = None) -> None:
@@ -8,10 +9,7 @@ def update_zotero_bib(user_id: str, collection_id: str | None = None, api_key: s
     if api_key is None:
         assert (api_key := os.environ["ZOTERO_API_KEY"]) is not None, "ZOTERO_API_KEY environment variable not set"
 
-    if collection_id:
-        url = f"{base_url}/collections/{collection_id}/items"
-    else:
-        url = f"{base_url}/items"
+    url = f"{base_url}/collections/{collection_id}/items" if collection_id else f"{base_url}/items"
 
     headers = {"Zotero-API-Key": api_key}
     params = {"format": "bibtex"}

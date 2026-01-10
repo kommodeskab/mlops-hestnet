@@ -1,13 +1,14 @@
-from typing import Optional
-from src.datasets import BaseDataset
-from pathlib import Path
-import os
 import logging
-from datasets import load_dataset, load_from_disk, Dataset
+import os
+from pathlib import Path
+
 from dotenv import load_dotenv
-from src.datasets.utils import get_tokenize_function
 from transformers import AutoTokenizer
-from src import TensorDict, PathLike
+
+from datasets import Dataset, load_dataset, load_from_disk
+from src import PathLike, TensorDict
+from src.datasets import BaseDataset
+from src.datasets.utils import get_tokenize_function
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
@@ -17,19 +18,18 @@ logger = logging.getLogger(__name__)
 
 
 class DGigawordDataset(BaseDataset):
-    """Danish Gigaword dataset"""
+    """Danish Gigaword dataset."""
 
     def __init__(
-        self, 
-        size: Optional[int] = None, 
+        self,
+        size: int | None = None,
         skip_load: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.name = "danish-foundation-models/danish-gigaword"
         self.kwargs = kwargs
         self.dataset_loaded = False
-        # self.ds = None
         if not skip_load:
             self.load(size, **kwargs)
         else:
@@ -46,7 +46,7 @@ class DGigawordDataset(BaseDataset):
             cache_dir=str(CACHE_DIR),
             token=HF_TOKEN,
             **kwargs,
-        )    
+        )
         if size:
             self.ds = self.ds.shuffle(seed=42).select(range(size))
         self.size = len(self.ds)
@@ -75,29 +75,29 @@ class DGigawordDataset(BaseDataset):
         tokenize_function = get_tokenize_function(checkpoint)
 
         processed_ds = self.ds.map(
-            tokenize_function, 
+            tokenize_function,
             batched=True,
             num_proc=num_proc,
         remove_columns=self.ds.column_names,
         )
         logger.info(f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples")
         return processed_ds
-    
+
 
 
 class TDGigawordDataset(DGigawordDataset):
-    """Tokenized Danish Gigaword dataset"""
+    """Tokenized Danish Gigaword dataset."""
 
     def __init__(
-        self, 
-        checkpoint: Optional[str],
-        size: Optional[int] = None, 
+        self,
+        checkpoint: str | None,
+        size: int | None = None,
         preprocess: bool = False,
         preprocessed_path: PathLike = None,
         num_proc: int = 4,
-        **kwargs
+        **kwargs,
     ):
-        if preprocessed_path: 
+        if preprocessed_path:
             try:
                 super().__init__(size=None, skip_load=preprocessed_path, **kwargs)
                 self.ds = load_from_disk(preprocessed_path, keep_in_memory=False)
@@ -106,7 +106,7 @@ class TDGigawordDataset(DGigawordDataset):
                 self.ds.set_format("torch")
                 self.size = len(self.ds)
                 self.preprocessed = True
-                logger.info(f"Preprocessed dataset successfully loaded from disk at {preprocessed_path}") 
+                logger.info(f"Preprocessed dataset successfully loaded from disk at {preprocessed_path}")
             except (FileNotFoundError, Exception) as e:
                 raise FileNotFoundError(
                     f"Could not load preprocessed dataset from: {preprocessed_path}\n"
@@ -122,18 +122,19 @@ class TDGigawordDataset(DGigawordDataset):
         self.checkpoint = checkpoint if checkpoint else "distilbert/distilgpt2"
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        
+
         if preprocess:
             if not preprocessed_path:
                 if not checkpoint:
-                    raise ValueError("checkpoint must be provided when preprocess=True")
+                    msg = "checkpoint must be provided when preprocess=True"
+                    raise ValueError(msg)
                 self.preprocess(num_proc)
             else:
                 logger.warning("Preprocessed dataset loaded. Skipping.")
 
     def tokenize_function(self, elem):
         # Ensure elements are tokenized to the same length for batched and parrelilized operations.
-        return self.tokenizer(elem["text"], padding='max_length', truncation=True)
+        return self.tokenizer(elem["text"], padding="max_length", truncation=True)
 
     def __len__(self) -> int:
         return self.size
@@ -141,19 +142,18 @@ class TDGigawordDataset(DGigawordDataset):
     def __getitem__(self, index: int) -> TensorDict:
         if self.preprocessed:
             return self.ds[index]
-        else:
-            # Make sure to return tensors when tokenizing on the fly
-            tokenized = self.tokenizer(self.ds[index]["text"], padding='max_length', truncation=True, return_tensors="pt")
-            return self._labels_map(tokenized)
+        # Make sure to return tensors when tokenizing on the fly
+        tokenized = self.tokenizer(self.ds[index]["text"], padding="max_length", truncation=True, return_tensors="pt")
+        return self._labels_map(tokenized)
 
     def _preprocess(self, num_proc: int = 4) -> Dataset:
         assert not self.preprocessed, "Called _preprocess but dataset is already preprocessed!"
 
         processed_ds = self.ds.map(
-            self.tokenize_function, 
+            self.tokenize_function,
             batched=True,
             num_proc=num_proc,
-        remove_columns=self.ds.column_names,
+            remove_columns=self.ds.column_names,
         ).map(self._labels_map)
         logger.info(f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples")
         return processed_ds
@@ -163,12 +163,12 @@ class TDGigawordDataset(DGigawordDataset):
         if self.preprocessed:
             logger.warning("Dataset already preprocessed. Skipping.")
             return
-        
+
         self.ds = self._preprocess(num_proc)
         self.ds.set_format("torch") # function changes dataset in-place
         self.size = len(self.ds)
         self.preprocessed = True
-    
+
     @staticmethod
     def _labels_map(elem):
         # Set labels to input_ids
@@ -176,7 +176,7 @@ class TDGigawordDataset(DGigawordDataset):
 
 
 if __name__ == "__main__":
-    N = 2    
+    N = 2
     # Standard DGigawordDataset returns dictionaries with text
     dataset = DGigawordDataset(1000)
     print(len(dataset))
@@ -221,7 +221,7 @@ if __name__ == "__main__":
 
     for i, batch in enumerate(dl):
         # print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
-        print(batch['input_ids'].shape)  # [batch_size, seq_len]
-        print(batch['labels'].shape)     # [batch_size, seq_len]
+        print(batch["input_ids"].shape)  # [batch_size, seq_len]
+        print(batch["labels"].shape)     # [batch_size, seq_len]
         if i == N:
             break

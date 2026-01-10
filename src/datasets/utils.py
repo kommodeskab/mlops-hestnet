@@ -1,10 +1,12 @@
-from pathlib import Path
-import os
 import logging
-from datasets import load_dataset, get_dataset_config_names
+import os
+from pathlib import Path
+
+import psutil
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
-import psutil
+
+from datasets import get_dataset_config_names, load_dataset
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -20,7 +22,6 @@ def log_memory_usage():
 
 def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
     """Create a tokenize function for the given checkpoint."""
-
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     tokenizer.pad_token = tokenizer.eos_token
 
@@ -31,7 +32,7 @@ def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
 
 def get_group_texts_function(block_size = 128):
     def group_texts(elem):
-        concatenated_elems = {k: sum(elem[k], []) for k in elem.keys()}
+        concatenated_elems = {k: sum(elem[k], []) for k in elem}
         total_length = len(concatenated_elems[list(elem.keys())[0]])
         # We drop the small remainder
         if total_length >= block_size:

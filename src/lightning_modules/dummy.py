@@ -1,7 +1,8 @@
+import torch.nn as nn
+
+from src import Batch, LRSchedulerType, ModelOutput, OptimizerType, StepOutput
 from src.lightning_modules import BaseLightningModule
 from src.losses import BaseLossFunction
-import torch.nn as nn
-from src import OptimizerType, LRSchedulerType, Batch, ModelOutput, StepOutput
 
 
 class DummyModule(BaseLightningModule):

@@ -1,18 +1,19 @@
-import os
-import hydra
-from omegaconf import DictConfig
-from datetime import datetime
-import wandb
 import contextlib
+import logging
+import os
 import random
+import shutil
+import tempfile
+from datetime import datetime
+
+import hydra
 import numpy as np
 import torch
-from hydra.utils import instantiate
 import torch.nn as nn
+import wandb
+from hydra.utils import instantiate
+from omegaconf import DictConfig
 from pytorch_lightning.callbacks import Callback
-import tempfile
-import shutil
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +112,8 @@ def config_from_id(project: str, id: str) -> dict:
     except wandb.errors.CommError:
         pass
 
-    raise ValueError(f"Could not find experiment {path}.")
+    msg = f"Could not find experiment {path}."
+    raise ValueError(msg)
 
 
 def model_config_from_id(project: str, id: str, model_keyword: str) -> dict:
@@ -147,7 +149,7 @@ def get_artifact(
     project: str,
     filename: str,
 ):
-    """Downloads a given artifact from WandB
+    """Downloads a given artifact from WandB.
 
     Args:
         project (str): The project name
@@ -155,6 +157,7 @@ def get_artifact(
 
     Returns:
         wandb.Artifact: The requested artifact
+
     """
     api = wandb.Api()
     return api.artifact(f"{project}/{filename}")
@@ -165,8 +168,7 @@ def download_checkpoint(
     id: str,
     filename: str,
 ) -> str:
-    """
-    Downloads a model checkpoint from WandB and saves it locally.
+    """Downloads a model checkpoint from WandB and saves it locally.
     Return the path to the downloaded checkpoint.
 
     Args:
@@ -176,8 +178,8 @@ def download_checkpoint(
 
     Returns:
         str: The path to the downloaded checkpoint
-    """
 
+    """
     root = get_root()
     artifact = get_artifact(project, filename)
     savedir = f"{root}/logs/{project}/{id}/checkpoints"

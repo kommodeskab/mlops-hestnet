@@ -1,6 +1,7 @@
 import torch
-from src.datasets import BaseDataset
+
 from src import Batch
+from src.datasets import BaseDataset
 
 
 class DummyDataset(BaseDataset):

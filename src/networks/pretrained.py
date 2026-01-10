@@ -1,4 +1,5 @@
 from torch.nn import Module
+
 from src.utils import model_from_id
 
 

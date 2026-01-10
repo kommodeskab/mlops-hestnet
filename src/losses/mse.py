@@ -1,12 +1,12 @@
-from .baseloss import BaseLossFunction
-from src import Batch, ModelOutput, LossOutput
 import torch
+
+from src import Batch, LossOutput, ModelOutput
+
+from .baseloss import BaseLossFunction
 
 
 class MSELoss(BaseLossFunction):
-    """
-    Simple example of how to implement Mean Squared Error Loss
-    """
+    """Simple example of how to implement Mean Squared Error Loss."""
 
     def __init__(self):
         super().__init__()
