@@ -8,7 +8,7 @@ from src.datasets.utils import get_tokenize_function
 
 
 load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
 CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class DGigawordDataset(BaseDataset):
         return self.size
 
     def __getitem__(self, index: int) -> dict:
-        return self.ds[index]
+        return self.ds[index]['text']
 
 
 if __name__ == "__main__":

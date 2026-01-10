@@ -36,7 +36,7 @@ def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
     def tokenize_function(elem):
-        return tokenizer(elem["text"], truncation=True, return_tensors="pt", **tokenizer_kwargs)
+        return tokenizer(elem, truncation=True, return_tensors="pt", **tokenizer_kwargs)
 
     return tokenize_function
 

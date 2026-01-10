@@ -27,12 +27,12 @@ class HestNet(nn.Module):
 
     def tokenize_function(self, elem):
         print(elem)
-        return self.tokenizer(elem["text"], truncation=True, return_tensors="pt")
+        return self.tokenizer(elem, truncation=True, return_tensors="pt")
 
-    def get_tokinizer(checkpoint):
-        return AutoTokenizer.from_pretrained(checkpoint)
+    def _get_tokinizer(self):
+        return self.tokenizer
 
-    def forward(self, inputs: dict, **kwargs) -> Tensor:
+    def forward(self, inputs: str, **kwargs) -> Tensor:
         encoded_input = self.tokenize_function(inputs)  # contains "input_ids" and "attention_mask"
         outputs = self.model(**encoded_input, labels=encoded_input["input_ids"], **kwargs)
         return outputs
@@ -44,7 +44,7 @@ def main(cfg: DictConfig) -> None:
     checkpoint = cfg.model.network.checkpoint
     model = HestNet(checkpoint)
     text = "Jeg bor i et kommodeskab"
-    outputs = model({"text": text})
+    outputs = model(text)
     print(f"Model: {checkpoint}")
     print(f"Input: {text}")
     print(f"Loss: {outputs.loss.item():.4f}")
