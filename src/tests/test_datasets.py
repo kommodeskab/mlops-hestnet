@@ -108,11 +108,12 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("size", [1, 69, 1000])
+@pytest.mark.parametrize("preprocess", [False, True])
 @pytest.mark.parametrize("batch_size", [1, 4])
-def test_tdgigaword_dataloader(checkpoint, size, batch_size):
+def test_tdgigaword_dataloader(checkpoint, size, preprocess, batch_size):
     """Test TDGigawordDataset works with DataLoader and DataCollator."""
 
-    dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=True)
+    dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=preprocess)
     data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
     
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=data_collator, num_workers = 0)
@@ -130,6 +131,6 @@ def test_tdgigaword_dataloader(checkpoint, size, batch_size):
 
 
 if __name__ == "__main__":
-    # test_dummy_dataset()
-    # test_dgigaword_dataset("distilbert/distilgpt2", None)
+    test_dummy_dataset()
+    test_dgigaword_dataset("distilbert/distilgpt2", None)
     test_tdgigaword_dataloader("distilbert/distilgpt2", 100, 32)
