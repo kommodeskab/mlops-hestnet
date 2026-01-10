@@ -8,7 +8,8 @@ def test_HestNet(checkpoint):
     """Test HestNet model initialization and forward pass."""
     model = HestNet(checkpoint)
     text = "Jeg bor i et kommodeskab"
-    outputs = model(text)
+    inputs = model.tokenizer(text, return_tensors="pt")
+    outputs = model(inputs, labels=inputs["input_ids"])  
 
     # Test that outputs contain required attributes
     assert hasattr(outputs, "loss"), "Model outputs should contain 'loss' attribute"
@@ -32,6 +33,10 @@ def test_HestNet(checkpoint):
 
     # Test with different input
     text2 = "Dette er en test"
-    outputs2 = model(text2)
+    inputs = model.tokenizer(text2, return_tensors="pt")
+    outputs2 = model(inputs, labels=inputs["input_ids"])  
     assert hasattr(outputs2, "loss"), "Model should work with different inputs"
     assert not torch.isnan(outputs2.loss), "Loss should be valid for different inputs"
+
+if __name__ == "__main__":
+    test_HestNet("distilbert/distilgpt2")

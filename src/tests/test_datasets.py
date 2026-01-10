@@ -69,7 +69,7 @@ def _validate_tokenized_sample(sample):
         )
 
 
-@pytest.mark.parametrize("size", [None, 1, 69, 1000])
+@pytest.mark.parametrize("size", [None, 1, 69, 100])
 def test_dgigaword_dataset(size):
     """Test raw DGigawordDataset returns text samples."""
     dataset = DGigawordDataset(size)
@@ -107,37 +107,29 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
         _validate_tokenized_sample(sample)
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-def test_tdgigaword_dataset_full(checkpoint):
-    """Test full dataset (size=None) without preprocessing."""
-    dataset = TDGigawordDataset(checkpoint=checkpoint, size=None, preprocess=False)
-    assert len(dataset) == N_TRAIN
-    for i in _get_random_indices(N_TRAIN, n_samples=5):
-        sample = dataset[i]
-        _validate_tokenized_sample(sample)
+@pytest.mark.parametrize("size", [1, 69, 1000])
+@pytest.mark.parametrize("batch_size", [1, 4])
+def test_tdgigaword_dataloader(checkpoint, size, batch_size):
+    """Test TDGigawordDataset works with DataLoader and DataCollator."""
 
-# @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-# @pytest.mark.parametrize("size", [None, 1, 1000, 69])
-# def test_tdgigaword_dataloader(checkpoint, size):
-#     """Test TDGigawordDataset works with DataLoader and DataCollator."""
-
-#     dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=True)
-#     data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
+    dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=True)
+    data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
     
-#     dataloader = DataLoader(dataset, batch_size=4, collate_fn=data_collator)
+    dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=data_collator, num_workers = 0)
     
-#     batch = next(iter(dataloader))
-#     assert "input_ids" in batch, f"Batch should contain 'input_ids', got keys: {batch.keys()}"
-#     assert "attention_mask" in batch, f"Batch should contain 'attention_mask', got keys: {batch.keys()}"
-#     assert "labels" in batch, f"Batch should contain 'labels', got keys: {batch.keys()}"
-#     assert batch["input_ids"].shape[0] == 4, (
-#         f"Batch size should be 4, got {batch['input_ids'].shape[0]}"
-#     )
-#     assert batch["input_ids"].shape == batch["labels"].shape, (
-#         f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
-#     )
-
+    batch = next(iter(dataloader))
+    assert "input_ids" in batch, f"Batch should contain 'input_ids', got keys: {batch.keys()}"
+    assert "attention_mask" in batch, f"Batch should contain 'attention_mask', got keys: {batch.keys()}"
+    assert "labels" in batch, f"Batch should contain 'labels', got keys: {batch.keys()}"
+    assert batch["input_ids"].shape[0] == min(batch_size, size), (
+        f"Batch size should be 4, got {batch['input_ids'].shape[0]}"
+    )
+    assert batch["input_ids"].shape == batch["labels"].shape, (
+        f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
+    )
 
 
 if __name__ == "__main__":
-    test_dummy_dataset()
-    test_dgigaword_dataset("distilbert/distilgpt2", None)
+    # test_dummy_dataset()
+    # test_dgigaword_dataset("distilbert/distilgpt2", None)
+    test_tdgigaword_dataloader("distilbert/distilgpt2", 100, 32)

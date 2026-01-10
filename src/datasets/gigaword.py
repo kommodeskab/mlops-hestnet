@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, Dict
+from torch import Tensor
 from src.datasets import BaseDataset
 from pathlib import Path
 import os
@@ -7,6 +8,7 @@ from datasets import load_dataset, Dataset
 from dotenv import load_dotenv
 from src.datasets.utils import get_tokenize_function
 from transformers import AutoTokenizer
+TensorDict = Dict[str, Tensor]
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
@@ -90,19 +92,24 @@ class TDGigawordDataset(DGigawordDataset):
         if preprocess:
             if not checkpoint:
                 raise ValueError("checkpoint must be provided when preprocess=True")
+            # if size >= 1000: raise NotImplementedError("Preprocessing for large datasets currently causes OOM crashes.")
             self.preprocess(num_proc)
 
     def tokenize_function(self, elem):
-        return self.tokenizer(elem["text"], padding=True, truncation=True, return_tensors="pt")
+        #return self.tokenizer(elem["text"], padding=True, truncation=True, return_tensors="pt")
+        # Ensure elements are tokenized to the same length for batched and parrelilized operations.
+        return self.tokenizer(elem["text"], padding='max_length', truncation=True)
 
     def __len__(self) -> int:
         return self.size
 
-    def __getitem__(self, index: int) -> dict:
+    def __getitem__(self, index: int) -> TensorDict:
         if self.preprocessed:
             return self.ds[index]
         else:
-            return self._labels_map(self.tokenize_function(self.ds[index]))
+            # Make sure to return tensors when tokenizing on the fly
+            tokenized = self.tokenizer(self.ds[index]["text"], padding='max_length', truncation=True, return_tensors="pt")
+            return self._labels_map(tokenized)
 
     def _preprocess(self, num_proc: int = 4) -> Dataset:
         assert self.preprocessed == False, "Called _preprocess but dataset is already preprocessed!"
@@ -151,7 +158,7 @@ if __name__ == "__main__":
         print(sample["input_ids"].shape)
         print(sample["attention_mask"].shape)
     
-    dataset = TDGigawordDataset(checkpoint, 1000, preprocess=True)
+    dataset = TDGigawordDataset(checkpoint, 10000, preprocess=True, num_proc=8)
     print(dataset.features)
     for i in range(10):
         sample = dataset[i]
