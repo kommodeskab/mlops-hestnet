@@ -1,9 +1,23 @@
-# Template
- Template for deep learning projects using Pytorch Lightning and Hydra on DTU HPC.
+# Project description
+The purpose of this project is to train a transformer-based model for next-token prediction. We will be using a pre-trained model, possibly from Hugging Face, and fine-tuning it on the danish-foundation-models/danish-gigaword dataset using the classic unsupervised “masking” training paradigm. The Danish Gigaword dataset, developed by the IT University of Denmark, contains over a billion words. The dataset is open source and can be downloaded from Huggingface. We don’t think data version control is neccesary for our project, because we don’t expect the datasets to change. However, we might still try to implement it, for example, using DVC, just to get a feel of how it works in practice. 
 
+Having trained our model, we can use the model to generate arbitrary Danish sentences starting from a given prompt. By prompt, we mean the start of some sentence which the model will then, hopefully, be able to finish. Given the time, we also plan to implement additional datasets to train on as much data as possible. 
+
+We will use a combination of Pytorch Lightning, Hydra, and Weights & Biases to train, configure, and monitor the performance of our models.  We plan to implement as many methods from the course as possible, since we already have a good grasp of how these three frameworks work. We will also try to set up an API for doing remote inference. This way, users can prompt our model with any sentence that they would like to get the model to finish. 
+
+We start by fine-tuning a lightweight transformer model in order to validate the data pipeline. We subsequently fine-tune Mistral-7B using LoRA to get optimal performance, and test our setup on a heavier transformer model. 
+
+We aim to implement a complete continuous integration pipeline with automated testing and verification in a containerized environment to minimize deployment friction. The project will apply standard DevOPS workflows common in larger projects. New feature pull request are required to pass all automated tests and be reviewed by two team members before being merged with the main branch.
+
+* **Nikolaj**: `s214653@dtu.dk`
+* **Gabriel**: `s214615@dtu.dk`
+* **Gustav**: `s214657@dtu.dk`
+* **Andreas**: `s214630@dtu.dk`
+
+# Instructions
 ## Clone repo
 ```bash
-git clone https://github.com/kommodeskab/Template.git
+git clone https://github.com/kommodeskab/mlops-hestnet.git
 ```
 Remember that you have to login. This can be done very easily with the Github CLI. Look it up.
 
@@ -82,27 +96,27 @@ You can omit the `--filename` argument to check the entire codebase.
 ## Run an experiment
 To run an experiment, use:
 ```bash
-python main.py --config-name=<config-file-name>
+python main.py +experiment=<config-file-name>
 ```
 You can add additional overrides as needed using Hydra. For example, to change the batch size, use:
 ```bash
-python main.py --config-name=<config-file-name> data.batch_size=64
+python main.py +experiment=<config-file-name> data.batch_size=64
 ```
 
 ## Testing a model
 You can also test a model after having trained it. You use the same config file but change `phase` to `test` and specify the `id` of the run. As default, the last checkpoint (`last.ckpt`) will be used. You can override this by specifying `ckpt_path` in the config. This can be done from the command line as well. For example:
 ```bash
-python main.py --config-name=<config-file-name> phase=test continue_from_id=<run-id>
+python main.py +experiment=<config-file-name> phase=test continue_from_id=<run-id>
 ```
 Or if you want to specify a custom checkpoint path:
 ```bash
-python main.py --config-name=<config-file-name> phase=test continue_from_id=<run-id> ckpt_filename=<filename-of-checkpoint>
+python main.py +experiment=<config-file-name> phase=test continue_from_id=<run-id> ckpt_filename=<filename-of-checkpoint>
 ```
 
 ## Run the dummy example
 You can try out the dummy example to get started by running:
 ```bash
-python main.py --config-name=dummy
+python main.py +experiment=dummy
 ```
 
 ## Pytest and coverage
