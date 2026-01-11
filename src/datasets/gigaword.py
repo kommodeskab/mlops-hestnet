@@ -1,20 +1,17 @@
 import logging
 from datasets import load_dataset
-from src.datasets import BaseDataset
 from src import TextSample
-from src.datasets.tokenizers import Tokenizer
+from src.datasets.tokenization import Tokenizer
+from src.datasets.textdataset import BaseTextDataset
 
 
 logger = logging.getLogger(__name__)
 
 
-class DGigawordDataset(BaseDataset):
+class DGigawordDataset(BaseTextDataset):
     """Danish Gigaword dataset."""
 
-    def __init__(
-        self,
-        tokenizer: Tokenizer,
-        ):
+    def __init__(self,):
         super().__init__()
         self.name = "danish-foundation-models/danish-gigaword"
         self.ds = load_dataset(
@@ -22,7 +19,6 @@ class DGigawordDataset(BaseDataset):
             split="train",  # The dataset only has the trian split.
             cache_dir=self.data_path
         )
-        self.tokenizer = tokenizer
 
     @property
     def features(self):
@@ -40,16 +36,10 @@ class DGigawordDataset(BaseDataset):
         return len(self.ds)
 
     def __getitem__(self, index: int) -> TextSample:
-        text = self.ds[index]['text']
-        tokens = self.tokenizer(text)
-        return TextSample(
-            text = text,
-            input_ids = tokens['input_ids'].squeeze(),
-            attention_mask = tokens['attention_mask'].squeeze(),
-        )
+        return TextSample(text = self.ds[index]['text'])
     
 if __name__ == "__main__":
-    dataset = DGigawordDataset()
+    tokenizer = Tokenizer("distilbert/distilgpt2")
+    dataset = DGigawordDataset(tokenizer=tokenizer)
     sample = dataset[0]
-    print(sample['attention_mask'].shape)
-    print(sample['input_ids'].shape)
+    print(sample['text'])

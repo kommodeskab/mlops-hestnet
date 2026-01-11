@@ -4,6 +4,12 @@ network:
   _target_: src.networks.CausalTransformer
   checkpoint: "distilbert/distilgpt2"
 
+tokenizer:
+    _target_: src.datasets.Tokenizer
+    checkpoint: "distilbert/distilgpt2"
+    max_length: null
+
+
 loss_fn:
   _target_: src.losses.CausalLMLoss
 

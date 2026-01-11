@@ -1,7 +1,6 @@
 import torch.nn as nn
 from dotenv import load_dotenv
 from transformers import AutoModelForCausalLM
-from src import TextBatch, ModelOutput
 from torch import Tensor
 
 load_dotenv()
@@ -14,6 +13,7 @@ class CausalTransformer(nn.Module):
         super().__init__()
         self.checkpoint = checkpoint
         self.model: AutoModelForCausalLM = AutoModelForCausalLM.from_pretrained(checkpoint)
+        self.model.train()
 
     def forward(self, logits: Tensor) -> Tensor:
         output = self.model(input_ids = logits)

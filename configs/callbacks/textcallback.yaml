@@ -1,0 +1,2 @@
+text_callback:
+  _target_: src.callbacks.TextCallback
