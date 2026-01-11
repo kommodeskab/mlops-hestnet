@@ -19,17 +19,18 @@ CACHE_DIR = Path(os.getenv("DATA_PATH"))
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
 
+
 @profile
 def preprocess(
-        name: str,
-        checkpoint: str,
-        save_path: PathLike,
-        size: int | None = None,
-        batch_size: int = 1000,
-        num_proc: int = 4,
-        writer_batch_size: int = 1000,
-        **kwargs):
-
+    name: str,
+    checkpoint: str,
+    save_path: PathLike,
+    size: int | None = None,
+    batch_size: int = 1000,
+    num_proc: int = 4,
+    writer_batch_size: int = 1000,
+    **kwargs,
+):
     dataset: Dataset = load_dataset(
         path=name,
         split="train",  # The dataset only has the trian split.

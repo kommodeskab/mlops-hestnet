@@ -48,22 +48,22 @@ class HestNet(nn.Module):
 
         return self.model.generate(
             inputs.input_ids,
-            attention_mask= inputs.attention_mask,
+            attention_mask=inputs.attention_mask,
             **generation_params,
-            )
+        )
 
     def decode(self, outputs):
         """Decode text embeddings."""
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-    def forward(self, inputs: TensorDict, raw_text = False, **kwargs) -> CausalLMOutputWithCrossAttentions:
-        if raw_text: # Nice functionality to have, but in the long run I do not want to mix input types.
+    def forward(self, inputs: TensorDict, raw_text=False, **kwargs) -> CausalLMOutputWithCrossAttentions:
+        if raw_text:  # Nice functionality to have, but in the long run I do not want to mix input types.
             inputs = self.tokenizer(inputs, return_tensors="pt")
             inputs = inputs | {"labels": inputs["input_ids"]}
         if "labels" not in inputs and "labels" not in kwargs:
             msg = "inputs must contain 'labels' dict or labels parameter must be passed explicitly"
             raise ValueError(msg)
-        return self.model(**inputs, **kwargs) # inputs contains "input_ids", "attention_mask" and "labels"
+        return self.model(**inputs, **kwargs)  # inputs contains "input_ids", "attention_mask" and "labels"
 
 
 @hydra.main(version_base=None, config_path="../../configs", config_name="config")
@@ -71,7 +71,7 @@ def main(cfg: DictConfig) -> None:
     # Example
     prompt = "Jeg bor i et kommodeskab "
     checkpoint = cfg.model.network.checkpoint
-    #tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
+    # tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
     model = HestNet(checkpoint)
     inputs = model.tokenizer(prompt, return_tensors="pt")
     print(inputs)
@@ -88,7 +88,7 @@ def main(cfg: DictConfig) -> None:
     print(response)
 
     # Temporary functionality allowing for passing prompts directly. Enjoy while it lasts.
-    model(prompt, raw_text = True)
+    model(prompt, raw_text=True)
     response = model.decode(outputs)
     print(response)
 

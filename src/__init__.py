@@ -1,6 +1,6 @@
 import os
 from functools import partial
-from typing import Dict, Optional, TypeAlias, TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -14,6 +14,7 @@ OptimizerType = Optional[partial[Optimizer]]
 LRSchedulerType = Optional[dict[str, partial[LRScheduler] | str]]
 ImageType = list[Tensor | Figure | np.ndarray]
 PathLike = Union[str, bytes, os.PathLike]
+
 
 class Batch(TypedDict):
     input: Tensor
@@ -33,15 +34,18 @@ class StepOutput(TypedDict):
     model_output: ModelOutput | None = None
     loss_output: LossOutput | None = None
 
+
 # Hestnet
 class HestNetBatch(TypedDict):
     input_ids: Tensor
     attention_mask: Tensor
     labels: Tensor
 
+
 type HestNetOutput = CausalLMOutputWithCrossAttentions
 # class HestnetOutput(TypedDict):
 #     output: CausalLMOutputWithCrossAttentions
+
 
 class HestNetStepOutput(TypedDict):
     loss: Tensor

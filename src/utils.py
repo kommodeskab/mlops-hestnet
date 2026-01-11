@@ -14,9 +14,6 @@ import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import Callback
-import tempfile
-import shutil
-import logging
 import pytorch_lightning as pl
 
 logger = logging.getLogger(__name__)
@@ -123,7 +120,9 @@ def get_ckpt_path(
                 filename=filename,
             )
         except Exception as e:
-            raise ValueError(f"Could not find or download checkpoint with filename '{filename}' for experiment id '{id}' in project '{project}'.") from e
+            raise ValueError(
+                f"Could not find or download checkpoint with filename '{filename}' for experiment id '{id}' in project '{project}'."
+            ) from e
 
     return ckpt_path
 

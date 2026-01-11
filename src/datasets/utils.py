@@ -15,10 +15,12 @@ CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 def log_memory_usage():
     process = psutil.Process()
     mem_info = process.memory_info()
     logger.info(f"Memory usage: {mem_info.rss / 1024**3:.2f} GB")
+
 
 def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
     """Create a tokenize function for the given checkpoint."""
@@ -30,7 +32,8 @@ def get_tokenize_function(checkpoint: str, **tokenizer_kwargs):
 
     return tokenize_function
 
-def get_group_texts_function(block_size = 128):
+
+def get_group_texts_function(block_size=128):
     def group_texts(elem):
         concatenated_elems = {k: sum(elem[k], []) for k in elem}
         total_length = len(concatenated_elems[list(elem.keys())[0]])
@@ -44,6 +47,7 @@ def get_group_texts_function(block_size = 128):
         }
         result["labels"] = result["input_ids"].copy()
         return result
+
     return group_texts
 
 

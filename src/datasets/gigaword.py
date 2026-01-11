@@ -11,7 +11,7 @@ from src.datasets import BaseDataset
 from src.datasets.utils import get_tokenize_function
 
 load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN") # Huggingface Token
+HF_TOKEN = os.getenv("HF_TOKEN")  # Huggingface Token
 
 logger = logging.getLogger(__name__)
 
@@ -77,11 +77,12 @@ class DGigawordDataset(BaseDataset):
             tokenize_function,
             batched=True,
             num_proc=num_proc,
-        remove_columns=self.ds.column_names,
+            remove_columns=self.ds.column_names,
         )
-        logger.info(f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples")
+        logger.info(
+            f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples"
+        )
         return processed_ds
-
 
 
 class TDGigawordDataset(DGigawordDataset):
@@ -154,7 +155,9 @@ class TDGigawordDataset(DGigawordDataset):
             num_proc=num_proc,
             remove_columns=self.ds.column_names,
         ).map(self._labels_map)
-        logger.info(f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples")
+        logger.info(
+            f"Preprocessed dataset with {len(self.ds)} samples. Processed dataset has {len(processed_ds)} samples"
+        )
         return processed_ds
 
     def preprocess(self, num_proc: int = 4):
@@ -164,7 +167,7 @@ class TDGigawordDataset(DGigawordDataset):
             return
 
         self.ds = self._preprocess(num_proc)
-        self.ds.set_format("torch") # function changes dataset in-place
+        self.ds.set_format("torch")  # function changes dataset in-place
         self.size = len(self.ds)
         self.preprocessed = True
 
@@ -214,6 +217,7 @@ if __name__ == "__main__":
 
     from torch.utils.data import DataLoader
     from transformers import DataCollatorForLanguageModeling
+
     data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
 
     dl = DataLoader(dataset=dataset, collate_fn=data_collator)
@@ -221,6 +225,6 @@ if __name__ == "__main__":
     for i, batch in enumerate(dl):
         # print(batch.keys())  # dict_keys(['input_ids', 'attention_mask', 'labels'])
         print(batch["input_ids"].shape)  # [batch_size, seq_len]
-        print(batch["labels"].shape)     # [batch_size, seq_len]
+        print(batch["labels"].shape)  # [batch_size, seq_len]
         if i == n:
             break

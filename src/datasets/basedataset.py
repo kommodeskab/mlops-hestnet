@@ -16,7 +16,7 @@ class BaseDataset(Dataset):
     @property
     def unique_identifier(self):
         """
-        A unique identifier of this class. 
+        A unique identifier of this class.
         This is based on the unique properties of the class, i.e. the attributes defined in __init__.
 
         Returns:

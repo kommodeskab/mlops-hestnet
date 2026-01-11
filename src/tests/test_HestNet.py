@@ -43,14 +43,11 @@ def test_HestNet(checkpoint):
     assert not torch.isnan(outputs2.loss), "Loss should be valid for different inputs"
 
 
-
-
-
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 def test_HestnetModule(checkpoint):
     """Test HestnetModule Lightning module initialization and forward pass."""
     network = HestNet(checkpoint=checkpoint)
-    
+
     module = HestnetModule(
         network=network,
         optimizer=torch.optim.AdamW,
@@ -59,22 +56,22 @@ def test_HestnetModule(checkpoint):
             "monitor": "val_loss",
             "interval": "step",
             "frequency": 1,
-        }
+        },
     )
-    
+
     assert module.network is not None, "Network should be initialized"
     assert module.partial_optimizer is not None, "Optimizer should be set"
     assert module.partial_lr_scheduler is not None, "LR scheduler should be set"
-    
+
     # Test forward pass
     text = "Jeg bor i et kommodeskab"
     inputs = network.tokenizer(text, return_tensors="pt", padding=True, truncation=True)
     batch = {**inputs, "labels": inputs["input_ids"]}
-    
+
     output = module.forward(batch)
     assert hasattr(output, "loss"), "Forward output should contain 'loss' attribute"
     assert hasattr(output, "logits"), "Forward output should contain 'logits' attribute"
-    
+
     # Test common_step
     step_output = module.common_step(batch, batch_idx=0)
     assert "loss" in step_output, "Step output should contain 'loss' attribute"
@@ -96,7 +93,7 @@ def test_HestnetModule_with_datamodule(checkpoint, size):
         drop_last=False,
         num_workers=0,
     )
-    
+
     # Create model
     network = HestNet(checkpoint=checkpoint)
     module = HestnetModule(
@@ -107,21 +104,21 @@ def test_HestnetModule_with_datamodule(checkpoint, size):
             "monitor": "val_loss",
             "interval": "step",
             "frequency": 1,
-        }
+        },
     )
-    
+
     # Test with train batch
     train_loader = dm.train_dataloader()
     train_batch = next(iter(train_loader))
-    
+
     train_output = module.common_step(train_batch, batch_idx=0)
     assert train_output["loss"] is not None, "Train step should return a loss"
     assert not torch.isnan(train_output["loss"]), "Train loss should not be NaN"
-    
+
     # Test with val batch
     val_loader = dm.val_dataloader()
     val_batch = next(iter(val_loader))
-    
+
     val_output = module.common_step(val_batch, batch_idx=0)
     assert val_output["loss"] is not None, "Val step should return a loss"
     assert not torch.isnan(val_output["loss"]), "Val loss should not be NaN"

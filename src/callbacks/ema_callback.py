@@ -20,7 +20,7 @@ class EMACallback(Callback):
     Args:
         decay (float): The decay rate for the EMA. Default is 0.999.
     """
-    
+
     def __init__(
         self,
         decay: float = 0.999,

@@ -1,4 +1,3 @@
-from torch import Tensor
 from torch.utils.data import DataLoader, Dataset
 
 from src import Batch

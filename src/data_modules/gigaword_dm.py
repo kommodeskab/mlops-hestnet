@@ -8,8 +8,11 @@ from src.datasets.gigaword import TDGigawordDataset
 
 logger = logging.getLogger(__name__)
 
+
 def split_dataset(
-    train_dataset: Dataset, val_dataset: Dataset | None, train_val_split: float | None = None,
+    train_dataset: Dataset,
+    val_dataset: Dataset | None,
+    train_val_split: float | None = None,
 ) -> tuple[Dataset, Dataset]:
     if train_val_split is not None:
         train_dataset, val_dataset = random_split(train_dataset, [train_val_split, 1 - train_val_split])
@@ -79,6 +82,7 @@ class TDGigawordDM(pl.LightningDataModule):
             **kwargs,
         )
 
+
 if __name__ == "__main__":
     datamodule = TDGigawordDM(TDGigawordDataset("distilbert/distilgpt2"), train_val_split=0.9)
     train_loader = datamodule.train_dataloader()
@@ -93,5 +97,3 @@ if __name__ == "__main__":
     for batch in val_loader:
         print(batch)
         break
-
-

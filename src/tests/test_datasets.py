@@ -11,6 +11,7 @@ SEED = 42
 torch.manual_seed(SEED)
 N_TRAIN = 471550
 
+
 # here is an example test function
 def test_dummy_dataset():
     """Test dummy dataset returns correct shapes and keys."""
@@ -84,7 +85,7 @@ def test_dgigaword_dataset(size):
 
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-@pytest.mark.parametrize("size", [None, 1,  69, 1000])
+@pytest.mark.parametrize("size", [None, 1, 69, 1000])
 @pytest.mark.parametrize("preprocess", [False, True])
 @pytest.mark.parametrize("num_proc", [1, 4])
 def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
@@ -109,6 +110,7 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
         sample = dataset[i]
         _validate_tokenized_sample(sample)
 
+
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("size", [1, 69, 1000])
 @pytest.mark.parametrize("preprocess", [False, True])
@@ -118,7 +120,7 @@ def test_tdgigaword_dataloader(checkpoint, size, preprocess, batch_size):
     dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=preprocess)
     data_collator = DataCollatorForLanguageModeling(tokenizer=dataset.tokenizer, mlm=False)
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=data_collator, num_workers = 0)
+    dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=data_collator, num_workers=0)
 
     batch = next(iter(dataloader))
     assert "input_ids" in batch, f"Batch should contain 'input_ids', got keys: {batch.keys()}"
@@ -131,12 +133,13 @@ def test_tdgigaword_dataloader(checkpoint, size, preprocess, batch_size):
         f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
     )
 
+
 @pytest.mark.parametrize("checkpoint,size", [("distilbert/distilgpt2", 50)])
 def test_TDGigawordDM(checkpoint, size):
     """Test TDGigawordDM data module initialization and dataloaders."""
     # Create dataset
     dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=True)
-    
+
     # Create data module with train/val split
     dm = TDGigawordDM(
         trainset=dataset,
@@ -146,29 +149,29 @@ def test_TDGigawordDM(checkpoint, size):
         drop_last=True,
         num_workers=0,
     )
-    
+
     # Test data collator exists
     assert dm.data_collator is not None, "Data collator should be initialized"
     assert dm.checkpoint == checkpoint, f"Checkpoint should be {checkpoint}, got {dm.checkpoint}"
-    
+
     # Test train dataloader
     train_loader = dm.train_dataloader()
     assert train_loader is not None, "Train dataloader should not be None"
-    
+
     train_batch = next(iter(train_loader))
     assert "input_ids" in train_batch, "Batch should contain 'input_ids'"
     assert "attention_mask" in train_batch, "Batch should contain 'attention_mask'"
     assert "labels" in train_batch, "Batch should contain 'labels'"
     assert train_batch["input_ids"].shape[0] == 4, f"Batch size should be 4, got {train_batch['input_ids'].shape[0]}"
-    
+
     # Test val dataloader
     val_loader = dm.val_dataloader()
     assert val_loader is not None, "Val dataloader should not be None"
-    
+
     val_batch = next(iter(val_loader))
     assert "input_ids" in val_batch, "Validation batch should contain 'input_ids'"
     assert val_batch["input_ids"].shape[0] == 4, f"Val batch size should be 4, got {val_batch['input_ids'].shape[0]}"
-    
+
     # Test that train and val have different sizes
     train_size = len(dm.trainset)
     val_size = len(dm.valset)

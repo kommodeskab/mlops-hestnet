@@ -14,6 +14,7 @@ class PretrainedModel:
         model_keyword (str): The keyword to identify the model in the module.
         ckpt_filename (str, optional): The checkpoint filename to load. Defaults to "last".
     """
+
     def __new__(
         cls,
         project: str,

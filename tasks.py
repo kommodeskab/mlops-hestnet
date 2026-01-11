@@ -1,4 +1,3 @@
-
 from invoke import Context, task
 
 
@@ -78,11 +77,13 @@ def update(c: Context):
     c.run("uv add -r requirements.txt")
     c.run("rm requirements.txt")
 
+
 @task
 def preprocess(c: Context):
     c.run("echo preprocess dataset. Takes about 40 minutes for full dataset.")
     c.run("source .venv/bin/activate")
     c.run("uv run ./src/datasets/preprocess.py")
+
 
 @task
 def submit(

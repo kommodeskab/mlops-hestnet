@@ -17,6 +17,7 @@ from src.datasets import TDGigawordDataset
 from src.lightning_modules import HestnetModule
 from src.networks import HestNet
 
+
 def monitor_gpu():
     # Monitor GPU memory
     if torch.cuda.is_available():
@@ -24,6 +25,7 @@ def monitor_gpu():
         print(f"Total memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
         print(f"Allocated: {torch.cuda.memory_allocated(0) / 1e9:.2f} GB")
         print(f"Reserved: {torch.cuda.memory_reserved(0) / 1e9:.2f} GB")
+
 
 def main():
     # DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -45,7 +47,7 @@ def main():
         preprocess=True,  # Tokenize on-the-fly
         num_proc=4,
     )
-    
+
     # Create data module with train/val split
     print("Creating data module...")
     datamodule = TDGigawordDM(
@@ -56,11 +58,11 @@ def main():
         drop_last=True,
         num_workers=0,  # Set to 0 for debugging, increase for speed
     )
-    
+
     # Create model
     print(f"Loading pretrained model: {checkpoint}")
     network = HestNet(checkpoint=checkpoint)
-    
+
     # Create Lightning module with optimizer
     print("Creating Lightning module...")
     model = HestnetModule(
@@ -71,21 +73,19 @@ def main():
             "monitor": "val_loss",
             "interval": "step",
             "frequency": 1,
-        }
+        },
     )
-    
+
     # Manually configure optimizer with learning rate
     # (normally done via Hydra config, but here we do it explicitly)
     model.partial_optimizer = lambda params: torch.optim.AdamW(params, lr=learning_rate)
     model.partial_lr_scheduler = {
-        "scheduler": lambda optimizer: torch.optim.lr_scheduler.ConstantLR(
-            optimizer, factor=1.0, total_iters=1
-        ),
+        "scheduler": lambda optimizer: torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1.0, total_iters=1),
         "monitor": "val_loss",
         "interval": "step",
         "frequency": 1,
     }
-    
+
     # Setup callbacks
     checkpoint_callback = ModelCheckpoint(
         monitor="val_loss",
@@ -93,14 +93,14 @@ def main():
         mode="min",
         save_last=True,
     )
-    
+
     # Setup logger (optional - set offline=True to disable wandb)
     logger = WandbLogger(
         project="hestnet-example",
         name="minimal-training",
         offline=True,  # Set to False to log to wandb
     )
-    
+
     # Create trainer
     print("Creating trainer...")
     trainer = pl.Trainer(
@@ -112,20 +112,20 @@ def main():
         log_every_n_steps=10,
         val_check_interval=0.5,  # Validate twice per epoch
     )
-    
+
     # Train the model
     print("Starting training...")
     monitor_gpu()
     trainer.fit(model, datamodule)
-    
+
     # Test generation after training
     print("\nTesting text generation...")
     model.eval()
     network.eval()
-    
+
     prompt = "Jeg bor i et kommodeskab"
     inputs = network.tokenizer(prompt, return_tensors="pt")
-    
+
     with torch.no_grad():
         generated = network.generate(
             inputs,
@@ -134,11 +134,11 @@ def main():
             top_k=50,
             top_p=0.95,
         )
-    
+
     generated_text = network.decode(generated)
     print(f"\nPrompt: {prompt}")
     print(f"Generated: {generated_text[0]}")
-    
+
     print("\nTraining complete!")
 
 

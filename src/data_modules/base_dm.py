@@ -7,7 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 def split_dataset(
-    train_dataset: Dataset, val_dataset: Dataset | None, train_val_split: float | None = None,
+    train_dataset: Dataset,
+    val_dataset: Dataset | None,
+    train_val_split: float | None = None,
 ) -> tuple[Dataset, Dataset]:
     if train_val_split is not None:
         train_dataset, val_dataset = random_split(train_dataset, [train_val_split, 1 - train_val_split])
@@ -18,7 +20,7 @@ def split_dataset(
 class BaseDM(pl.LightningDataModule):
     """
     A base data module for datasets.
-    If no validation dataset is provided, it splits the training dataset into 
+    If no validation dataset is provided, it splits the training dataset into
     training and validation sets based on the provided 'train_val_split' ratio.
     The validation and test dataloaders are created without shuffling and drop_last.
 
@@ -29,6 +31,7 @@ class BaseDM(pl.LightningDataModule):
         train_val_split (Optional[float | int], optional): The ratio or number to split the training dataset for validation if 'valset' is None. Defaults to None.
         **kwargs: Additional keyword arguments for the DataLoader.
     """
+
     def __init__(
         self,
         trainset: Dataset,
