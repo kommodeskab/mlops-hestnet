@@ -1,15 +1,15 @@
 from src.lightning_modules import BaseLightningModule
 from src.losses import BaseLossFunction
 import torch.nn as nn
-from src import OptimizerType, LRSchedulerType, Batch, ModelOutput, StepOutput
-
+from src import OptimizerType, LRSchedulerType, TextBatch, ModelOutput, StepOutput
+from src.networks import CausalTransformer
 
 class CausalLLM(BaseLightningModule):
     """A dummy LightningModule for testing purposes."""
 
     def __init__(
         self,
-        network: nn.Module,
+        network: CausalTransformer,
         loss_fn: BaseLossFunction,
         optimizer: OptimizerType = None,
         lr_scheduler: LRSchedulerType = None,
@@ -19,11 +19,11 @@ class CausalLLM(BaseLightningModule):
         self.network = network
         self.loss_fn = loss_fn
 
-    def forward(self, batch: Batch) -> ModelOutput:
-        output = self.network(batch["input_ids"])
+    def forward(self, batch: TextBatch) -> ModelOutput:
+        output = self.network.forward(batch["input_ids"])
         return ModelOutput(output=output)
 
-    def common_step(self, batch: Batch, batch_idx: int) -> ModelOutput:
+    def common_step(self, batch: TextBatch, batch_idx: int) -> ModelOutput:
         output = self.forward(batch)
         loss = self.loss_fn(output, batch)
         return StepOutput(

@@ -2,6 +2,9 @@ _target_: src.data_modules.BaseDM
 
 trainset:
   _target_: src.datasets.DGigawordDataset
-  checkpoint: "distilbert/distilgpt2"
+  tokenizer:
+    _target_: src.datasets.Tokenizer
+    checkpoint: "distilbert/distilgpt2"
+    max_length: null
 
 train_val_split: 0.95
