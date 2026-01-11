@@ -11,7 +11,7 @@ from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from src import TensorDict
 
 load_dotenv()
-MODEL_DIR = Path(os.getenv("MODEL_PATH")) / "pretrained"
+MODEL_DIR = Path(os.getenv("MODEL_PATH", "models")) / "pretrained"
 os.environ["HYDRA_FULL_ERROR"] = "1"
 
 
@@ -24,9 +24,21 @@ class HestNet(nn.Module):
     ):
         super().__init__()
         self.checkpoint = checkpoint
-        self.model = AutoModelForCausalLM.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
-        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=MODEL_DIR / checkpoint)
+        self.model = AutoModelForCausalLM.from_pretrained(checkpoint, cache_dir=self.model_path / checkpoint)
+        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint, cache_dir=self.model_path / checkpoint)
         self.tokenizer.pad_token = self.tokenizer.eos_token
+
+    @property
+    def model_path(self) -> Path:
+        """
+        Returns the `MODEL_PATH` variable defined in the `.env` file.
+        This is used to define where models are stored.
+        Usually, `MODEL_PATH="/models"`.
+
+        Returns:
+            str: The data path.
+        """
+        return Path(os.getenv("MODEL_PATH"))
 
     def generate(self, inputs, **generation_kwargs):
         """Generate text embeddings from input.

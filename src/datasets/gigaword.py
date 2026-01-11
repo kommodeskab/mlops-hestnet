@@ -35,6 +35,18 @@ class DGigawordDataset(BaseDataset):
             self.ds = None
             self.size = 0
 
+    @property
+    def data_path(self) -> Path:
+        """
+        Returns the `DATA_PATH` variable defined in the `.env` file.
+        This is used to define where datasets are stored.
+        Usually, `DATA_PATH="/data"`.
+
+        Returns:
+            str: The data path.
+        """
+        return Path(os.getenv("DATA_PATH")) # Default for pytest
+
     def load(self, size, **kwargs):
         if self.dataset_loaded:
             logger.warning("Dataset already preprocessed. Skipping.")

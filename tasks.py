@@ -60,6 +60,7 @@ def build(c: Context):
     c.run("echo Creating .env file...")
     with open(".env", "w") as f:
         f.write("DATA_PATH=...\n")
+        f.write("MODEL_PATH=...\n")
         f.write("WANDB_ENTITY=...\n")
         f.write("WANDB_API_KEY=...\n")
         f.write("ZOTERO_API_KEY=...\n")

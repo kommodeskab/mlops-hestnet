@@ -8,10 +8,6 @@ from transformers import AutoTokenizer
 
 from datasets import get_dataset_config_names, load_dataset
 
-load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN")
-CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -52,6 +48,10 @@ def get_group_texts_function(block_size=128):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+    HF_TOKEN = os.getenv("HF_TOKEN")
+    CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
+    
     name = "danish-foundation-models/danish-gigaword"
     configs = get_dataset_config_names(name)
     print(configs)

@@ -1,5 +1,6 @@
 import hashlib
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from torch.utils.data import Dataset
@@ -26,7 +27,7 @@ class BaseDataset(Dataset):
         return hashlib.md5(attr_str.encode()).hexdigest()
 
     @property
-    def data_path(self) -> str:
+    def data_path(self) -> Path:
         """
         Returns the `DATA_PATH` variable defined in the `.env` file.
         This is used to define where datasets are stored.
@@ -35,7 +36,7 @@ class BaseDataset(Dataset):
         Returns:
             str: The data path.
         """
-        return os.getenv("DATA_PATH")
+        return Path(os.getenv("DATA_PATH"))
 
     def __len__(self) -> int:
         msg = "Length method not implemented"
