@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from src import HestNetBatch, HestNetOutput, HestNetStepOutput, LRSchedulerType, OptimizerType
+from src import HestNetBatch, HestNetOutput, HestNetStepOutput, LRSchedulerType, OptimizerType, StepOutput
 from src.lightning_modules import BaseLightningModule
 
 
@@ -29,3 +29,13 @@ class HestnetModule(BaseLightningModule):
             loss=output.loss,
             model_output=output,
         )
+
+    def training_step(self, batch: HestNetBatch, batch_idx: int):
+        step_output = self.common_step(batch, batch_idx)
+        self.log("train_loss", step_output.get("loss"), on_step=True, on_epoch=True, prog_bar=True)
+        return step_output.get("loss")
+    
+    def validation_step(self, batch: HestNetBatch, batch_idx: int):
+        step_output = self.common_step(batch, batch_idx)
+        self.log("val_loss", step_output.get("loss"), on_step=False, on_epoch=True, prog_bar=True)
+        return step_output.get("loss")

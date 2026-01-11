@@ -3,6 +3,7 @@ _target_: src.lightning_modules.HestnetModule
 network:
   _target_: src.networks.HestNet
   checkpoint: ${checkpoint}
+# Complains about not setting loss_type. Not sure where to set it. 
 
 optimizer:
   _target_: torch.optim.AdamW

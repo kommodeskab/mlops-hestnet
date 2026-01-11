@@ -101,7 +101,7 @@ def main():
         offline=True,  # Set to False to log to wandb
     )
     
-    # 7. Create trainer
+    # Create trainer
     print("Creating trainer...")
     trainer = pl.Trainer(
         max_epochs=max_epochs,
