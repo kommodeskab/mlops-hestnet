@@ -5,6 +5,7 @@ from transformers import DataCollatorForLanguageModeling
 
 from src.datasets import DGigawordDataset, DummyDataset, TDGigawordDataset
 from src.datasets.utils import get_tokenize_function
+from src.data_modules import TDGigawordDM
 
 SEED = 42
 torch.manual_seed(SEED)
@@ -130,8 +131,54 @@ def test_tdgigaword_dataloader(checkpoint, size, preprocess, batch_size):
         f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
     )
 
+@pytest.mark.parametrize("checkpoint,size", [("distilbert/distilgpt2", 50)])
+def test_TDGigawordDM(checkpoint, size):
+    """Test TDGigawordDM data module initialization and dataloaders."""
+    # Create dataset
+    dataset = TDGigawordDataset(checkpoint=checkpoint, size=size, preprocess=True)
+    
+    # Create data module with train/val split
+    dm = TDGigawordDM(
+        trainset=dataset,
+        train_val_split=0.8,
+        batch_size=4,
+        shuffle=True,
+        drop_last=True,
+        num_workers=0,
+    )
+    
+    # Test data collator exists
+    assert dm.data_collator is not None, "Data collator should be initialized"
+    assert dm.checkpoint == checkpoint, f"Checkpoint should be {checkpoint}, got {dm.checkpoint}"
+    
+    # Test train dataloader
+    train_loader = dm.train_dataloader()
+    assert train_loader is not None, "Train dataloader should not be None"
+    
+    train_batch = next(iter(train_loader))
+    assert "input_ids" in train_batch, "Batch should contain 'input_ids'"
+    assert "attention_mask" in train_batch, "Batch should contain 'attention_mask'"
+    assert "labels" in train_batch, "Batch should contain 'labels'"
+    assert train_batch["input_ids"].shape[0] == 4, f"Batch size should be 4, got {train_batch['input_ids'].shape[0]}"
+    
+    # Test val dataloader
+    val_loader = dm.val_dataloader()
+    assert val_loader is not None, "Val dataloader should not be None"
+    
+    val_batch = next(iter(val_loader))
+    assert "input_ids" in val_batch, "Validation batch should contain 'input_ids'"
+    assert val_batch["input_ids"].shape[0] == 4, f"Val batch size should be 4, got {val_batch['input_ids'].shape[0]}"
+    
+    # Test that train and val have different sizes
+    train_size = len(dm.trainset)
+    val_size = len(dm.valset)
+    total_size = train_size + val_size
+    assert total_size == size, f"Train ({train_size}) + val ({val_size}) should equal dataset size ({size})"
+    assert train_size > val_size, f"Train size ({train_size}) should be larger than val size ({val_size})"
+
 
 if __name__ == "__main__":
     test_dummy_dataset()
     test_dgigaword_dataset("distilbert/distilgpt2", None)
     test_tdgigaword_dataloader("distilbert/distilgpt2", 100, 32)
+    test_TDGigawordDM("distilbert/distilgpt2", 50)
