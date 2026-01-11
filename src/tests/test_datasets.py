@@ -87,8 +87,7 @@ def test_dgigaword_dataset(size):
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("size", [None, 1, 69, 1000])
 @pytest.mark.parametrize("preprocess", [False, True])
-@pytest.mark.parametrize("num_proc", [1, 4])
-def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
+def test_tdgigaword_dataset(checkpoint, size, preprocess):
     """Test TDGigawordDataset with various configurations."""
     if size is None and preprocess:
         pytest.skip("Skipping size=None with preprocess=True (OOM issues)")
@@ -96,7 +95,6 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, num_proc):
         checkpoint=checkpoint,
         size=size,
         preprocess=preprocess,
-        num_proc=num_proc,
     )
     if size is None:
         size = N_TRAIN

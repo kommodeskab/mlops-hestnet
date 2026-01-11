@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
@@ -22,11 +23,13 @@ class DGigawordDataset(BaseDataset):
     def __init__(
         self,
         size: int | None = None,
+        streaming: bool = False,
         skip_load: bool = False,
         **kwargs,
     ):
         super().__init__()
         self.name = "danish-foundation-models/danish-gigaword"
+        self.streaming = streaming
         self.kwargs = kwargs
         self.dataset_loaded = False
         if not skip_load:
@@ -51,11 +54,14 @@ class DGigawordDataset(BaseDataset):
         if self.dataset_loaded:
             logger.warning("Dataset already preprocessed. Skipping.")
             return
+        if self.streaming:
+            raise NotImplementedError("Streaming is not currently supported with downstream pytorch lightning modules")
         self.ds = load_dataset(
             path=self.name,
             split="train",  # The dataset only has the trian split.
             cache_dir=str(self.data_path),
             token=HF_TOKEN,
+            streaming=self.streaming,
             **kwargs,
         )
         if size:
@@ -82,7 +88,7 @@ class DGigawordDataset(BaseDataset):
     def __getitem__(self, index: int) -> dict:
         return self.ds[index]
 
-    def _preprocess(self, checkpoint: str, num_proc: int = 4) -> Dataset:
+    def _preprocess(self, checkpoint: str, num_proc: Optional[int] = None) -> Dataset:
         tokenize_function = get_tokenize_function(checkpoint)
 
         processed_ds = self.ds.map(
@@ -106,12 +112,12 @@ class TDGigawordDataset(DGigawordDataset):
         size: int | None = None,
         preprocess: bool = False,
         preprocessed_path: PathLike = None,
-        num_proc: int = 4,
+        num_proc: Optional[int] = None,
         **kwargs,
     ):
         if preprocessed_path:
             try:
-                super().__init__(size=None, skip_load=preprocessed_path, **kwargs)
+                super().__init__(size=None, skip_load=bool(preprocessed_path), **kwargs)
                 self.ds = load_from_disk(preprocessed_path, keep_in_memory=False)
                 if size:
                     self.ds = self.ds.shuffle(seed=42).select(range(size))
@@ -158,7 +164,7 @@ class TDGigawordDataset(DGigawordDataset):
         tokenized = self.tokenizer(self.ds[index]["text"], padding="max_length", truncation=True, return_tensors="pt")
         return self._labels_map(tokenized)
 
-    def _preprocess(self, num_proc: int = 4) -> Dataset:
+    def _preprocess(self, num_proc: Optional[int] = None) -> Dataset:
         assert not self.preprocessed, "Called _preprocess but dataset is already preprocessed!"
 
         processed_ds = self.ds.map(
@@ -172,7 +178,7 @@ class TDGigawordDataset(DGigawordDataset):
         )
         return processed_ds
 
-    def preprocess(self, num_proc: int = 4):
+    def preprocess(self, num_proc: Optional[int] = None):
         """Public method to preprocess after initialization."""
         if self.preprocessed:
             logger.warning("Dataset already preprocessed. Skipping.")
