@@ -1,4 +1,6 @@
 import pytest
+from datasets import Dataset
+from unittest.mock import patch
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -25,3 +27,33 @@ HF_TOKEN=test_token_placeholder
     (tmp_dir / "models").mkdir(parents=True, exist_ok=True)
 
     yield tmp_dir
+
+
+@pytest.fixture(scope="session")
+def N_TRAIN():
+    """Number of samples in the mock dataset."""
+    return 1000
+
+
+@pytest.fixture(scope="session")
+def mock_gigaword_dataset(N_TRAIN):
+    """Create a tiny synthetic dataset for testing."""
+    fake_data = {
+        "text": [
+            "Jeg bor i et kommodeskab",
+        ]
+        * N_TRAIN
+    }
+    return Dataset.from_dict(fake_data)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_dataset_loading(mock_gigaword_dataset):
+    """Mock HuggingFace dataset loading to avoid downloads in CI."""
+    with patch("src.datasets.gigaword.load_dataset") as mock_load:
+
+        def side_effect(*args, **kwargs):
+            return mock_gigaword_dataset
+
+        mock_load.side_effect = side_effect
+        yield mock_load

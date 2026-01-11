@@ -9,7 +9,7 @@ from src.data_modules import TDGigawordDM
 
 SEED = 42
 torch.manual_seed(SEED)
-N_TRAIN = 471550
+# N_TRAIN = 471550
 
 
 # here is an example test function
@@ -72,7 +72,7 @@ def _validate_tokenized_sample(sample):
 
 
 @pytest.mark.parametrize("size", [None, 1, 69, 100])
-def test_dgigaword_dataset(size):
+def test_dgigaword_dataset(size, N_TRAIN):
     """Test raw DGigawordDataset returns text samples."""
     dataset = DGigawordDataset(size)
     if size is None:
@@ -87,9 +87,9 @@ def test_dgigaword_dataset(size):
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("size", [None, 1, 69, 1000])
 @pytest.mark.parametrize("preprocess", [False, True])
-def test_tdgigaword_dataset(checkpoint, size, preprocess):
+def test_tdgigaword_dataset(checkpoint, size, preprocess, N_TRAIN):
     """Test TDGigawordDataset with various configurations."""
-    if size is None and preprocess:
+    if N_TRAIN > 1000 and size is None and preprocess:
         pytest.skip("Skipping size=None with preprocess=True (OOM issues)")
     dataset = TDGigawordDataset(
         checkpoint=checkpoint,
