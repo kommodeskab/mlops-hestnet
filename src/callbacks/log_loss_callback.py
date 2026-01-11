@@ -6,6 +6,12 @@ from src.lightning_modules import BaseLightningModule
 
 
 class LogLossCallback(Callback):
+    """
+    Standard callback for logging loss values.
+    The callback will log all values that are returned in the `loss_output` of the loss class.
+    The callback adds a prefix to the logged name to distinguish "train", "validation" and "test" values.
+    """
+
     def __init__(self):
         super().__init__()
 
