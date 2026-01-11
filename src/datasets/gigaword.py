@@ -1,11 +1,9 @@
 import logging
-from dotenv import load_dotenv
 from datasets import load_dataset
 from src.datasets import BaseDataset
-from src.datasets.utils import get_tokenize_function
 from src import TextSample
+from src.datasets.tokenizers import Tokenizer
 
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +13,7 @@ class DGigawordDataset(BaseDataset):
 
     def __init__(
         self,
-        checkpoint: str,
+        tokenizer: Tokenizer,
         ):
         super().__init__()
         self.name = "danish-foundation-models/danish-gigaword"
@@ -24,7 +22,7 @@ class DGigawordDataset(BaseDataset):
             split="train",  # The dataset only has the trian split.
             cache_dir=self.data_path
         )
-        self.tokenizer = get_tokenize_function(checkpoint)
+        self.tokenizer = tokenizer
 
     @property
     def features(self):
