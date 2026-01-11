@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - override /trainer: cpu
+  - override /data: gigaword
+  - override /callbacks: dummy_callbacks
+  - override /model: llm
+  - override /logger: default
+
+project_name: 'hestnet'
+task_name: 'andreas-test'
+compile: False # we can only compile on GPU
+phase: 'train'
+
+data:
+  batch_size: 1
+
+logger:
+  log_model: False

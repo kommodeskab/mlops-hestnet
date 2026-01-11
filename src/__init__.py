@@ -17,6 +17,18 @@ class Batch(TypedDict):
     target: Tensor
 
 
+class TextSample(TypedDict):
+    text: str
+    input_ids: Tensor
+    attention_mask: Tensor
+    
+
+class TextBatch(TypedDict):
+    texts: list[str]
+    input_ids: Tensor
+    attention_mask: Tensor
+
+
 class ModelOutput(TypedDict):
     output: Tensor
 
