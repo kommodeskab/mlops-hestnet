@@ -1,6 +1,6 @@
 import torch.nn as nn
 from src.losses.baseloss import BaseLossFunction
-from src import TextBatch, ModelOutput, LossOutput
+from src import ModelOutput, LossOutput, TokenizedBatch
 
 class CausalLMLoss(BaseLossFunction):
     def __init__(self, ignore_index=-100):
@@ -8,7 +8,7 @@ class CausalLMLoss(BaseLossFunction):
         # Standard default for HF models is CrossEntropyLoss
         self.loss_fn = nn.CrossEntropyLoss(ignore_index=ignore_index)
 
-    def forward(self, model_output: ModelOutput, batch: TextBatch) -> LossOutput:
+    def forward(self, model_output: ModelOutput, batch: TokenizedBatch) -> LossOutput:
         logits = model_output["output"]
         labels = batch["input_ids"]
 

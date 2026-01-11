@@ -7,7 +7,7 @@ defaults:
   - override /model: llm
   - override /logger: default
 
-project_name: 'hestnet'
+project_name: 'andreas-test-llm'
 task_name: 'andreas-test'
 compile: False # we can only compile on GPU
 phase: 'train'
@@ -17,3 +17,7 @@ data:
 
 logger:
   log_model: False
+
+callbacks:
+  text_callback:
+    _target_: src.callbacks.TextCallback

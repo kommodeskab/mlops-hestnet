@@ -15,18 +15,21 @@ ImageType = list[Tensor | Figure | np.ndarray]
 class Batch(TypedDict):
     input: Tensor
     target: Tensor
+    
 
-
-class TextSample(TypedDict):
+class TokenizedSample(TypedDict):
     text: str
     input_ids: Tensor
     attention_mask: Tensor
     
-
-class TextBatch(TypedDict):
+class TokenizedBatch(TypedDict):
     texts: list[str]
     input_ids: Tensor
     attention_mask: Tensor
+
+
+class TextSample(TypedDict):
+    text: str
 
 
 class ModelOutput(TypedDict):

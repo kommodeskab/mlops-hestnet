@@ -1,7 +1,9 @@
 _target_: src.data_modules.BaseDM
 
 trainset:
-  _target_: src.datasets.DGigawordDataset
+  _target_: src.datasets.TokenizedDataset
+  dataset:
+    _target_: src.datasets.DGigawordDataset
   tokenizer:
     _target_: src.datasets.Tokenizer
     checkpoint: "distilbert/distilgpt2"
