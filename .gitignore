@@ -4,6 +4,7 @@
 /playgrounds
 /data
 /models
+/wandb
 
 # ruff cache
 /.ruff_cache

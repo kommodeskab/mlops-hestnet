@@ -87,12 +87,10 @@ def my_app(cfg: DictConfig) -> None:
 
     if cfg.phase == "train":
         logger.info("Beginning training..")
-        model.train()
         trainer.fit(model, datamodule, ckpt_path=ckpt_path)
 
     if cfg.phase == "test":
         logger.info("Beginning testing..")
-        model.eval()
         trainer.test(model, datamodule, ckpt_path=ckpt_path)
 
     wandb.finish()
