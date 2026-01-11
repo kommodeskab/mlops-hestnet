@@ -50,10 +50,8 @@ def mock_gigaword_dataset(N_TRAIN):
 @pytest.fixture(scope="session", autouse=True)
 def mock_dataset_loading(mock_gigaword_dataset):
     """Mock HuggingFace dataset loading to avoid downloads in CI."""
-    with patch("src.datasets.gigaword.load_dataset") as mock_load:
-
-        def side_effect(*args, **kwargs):
-            return mock_gigaword_dataset
-
-        mock_load.side_effect = side_effect
+    with patch(
+        "src.datasets.gigaword.load_dataset",
+        return_value=mock_gigaword_dataset
+    ) as mock_load:
         yield mock_load
