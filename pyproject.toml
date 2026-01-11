@@ -53,3 +53,17 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length=120
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_data/*",
+    "*/site-packages/*",
+    "*/.cache/*",
+    "*/datasets/*",
+    "*/data/*",
+    "*/models/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+]
