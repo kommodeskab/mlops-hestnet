@@ -45,7 +45,7 @@ class DGigawordDataset(BaseDataset):
         Returns:
             str: The data path.
         """
-        return Path(os.getenv("DATA_PATH")) # Default for pytest
+        return Path(os.getenv("DATA_PATH"))  # Default for pytest
 
     def load(self, size, **kwargs):
         if self.dataset_loaded:

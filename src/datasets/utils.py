@@ -51,7 +51,7 @@ if __name__ == "__main__":
     load_dotenv()
     HF_TOKEN = os.getenv("HF_TOKEN")
     CACHE_DIR = Path(os.getenv("DATA_PATH"))  # Works on different operating systems
-    
+
     name = "danish-foundation-models/danish-gigaword"
     configs = get_dataset_config_names(name)
     print(configs)
