@@ -1,0 +1,7 @@
+_target_: src.data_modules.BaseDM
+
+trainset:
+  _target_: src.datasets.DGigawordDataset
+  checkpoint: "distilbert/distilgpt2"
+
+train_val_split: 0.95
