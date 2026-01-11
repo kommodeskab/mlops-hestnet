@@ -20,22 +20,11 @@ class HestnetModule(BaseLightningModule):
 
     def forward(self, batch: HestNetBatch) -> HestNetOutput:
         return self.network(batch)
-        # return HestnetOutput()
-        # return ModelOutput(output=output)
 
-    def common_step(self, batch: HestNetBatch, batch_idx: int) -> HestNetStepOutput:
+    def common_step(self, batch: HestNetBatch, batch_idx: int) -> StepOutput:
         output = self.forward(batch) # Already takes attention mask as input and computes loss
-        return HestNetStepOutput(
+        return StepOutput(
             loss=output.loss,
+            loss_output=output, # This is only included for the log_loss_callback
             model_output=output,
         )
-
-    def training_step(self, batch: HestNetBatch, batch_idx: int):
-        step_output = self.common_step(batch, batch_idx)
-        self.log("train_loss", step_output.get("loss"), on_step=True, on_epoch=True, prog_bar=True)
-        return step_output.get("loss")
-    
-    def validation_step(self, batch: HestNetBatch, batch_idx: int):
-        step_output = self.common_step(batch, batch_idx)
-        self.log("val_loss", step_output.get("loss"), on_step=False, on_epoch=True, prog_bar=True)
-        return step_output.get("loss")
