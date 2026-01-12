@@ -4,9 +4,6 @@ trainset:
   _target_: src.datasets.TokenizedDataset
   dataset:
     _target_: src.datasets.DGigawordDataset
-  tokenizer:
-    _target_: src.datasets.Tokenizer
-    checkpoint: "distilbert/distilgpt2"
-    max_length: null
+  tokenizer: ${tokenizer}
 
 train_val_split: 0.95

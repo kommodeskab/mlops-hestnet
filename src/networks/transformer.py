@@ -1,6 +1,6 @@
 import torch.nn as nn
 from dotenv import load_dotenv
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, PreTrainedModel
 from torch import Tensor
 
 load_dotenv()
@@ -13,7 +13,7 @@ class CausalTransformer(nn.Module):
     ):
         super().__init__()
         self.checkpoint = checkpoint
-        self.model: AutoModelForCausalLM = AutoModelForCausalLM.from_pretrained(checkpoint)
+        self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(checkpoint)
         self.model.train()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
