@@ -4,6 +4,7 @@ from src import OptimizerType, LRSchedulerType, TokenizedBatch, ModelOutput, Ste
 from src.networks import CausalTransformer
 from torch import Tensor
 from src.datasets import Tokenizer
+import torch
 
 
 class CausalLLM(BaseLightningModule):
@@ -39,6 +40,7 @@ class CausalLLM(BaseLightningModule):
             model_output=output,
         )
 
+    @torch.no_grad()
     def generate(self, text: list[str], **kwargs) -> list[str]:
         generation_params = {
             "max_new_tokens": 100,
