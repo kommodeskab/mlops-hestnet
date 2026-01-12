@@ -19,6 +19,13 @@ def cleandocker(c: Context, all: bool = False):
 def image(c: Context, gpu: bool = False):
     """Build the Docker development container image."""
     if gpu:
+        # Verify NVIDIA Docker runtime is available
+        result = c.run("docker info | grep -i nvidia", warn=True, hide=True)
+        if not result or result.failed:
+            print("Warning: NVIDIA Docker runtime not detected!")
+            print("Make sure nvidia-docker2 is installed and Docker daemon is configured.")
+            print("Discontinuing...")
+            return
         c.run("docker build -f .devcontainer/gpu.dockerfile -t main-image-gpu .")
     else:
         c.run("docker build -f .devcontainer/Dockerfile -t main-image .")
