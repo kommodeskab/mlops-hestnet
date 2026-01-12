@@ -12,6 +12,11 @@ task_name: 'andreas-test'
 compile: False # we can only compile on GPU
 phase: 'train'
 
+tokenizer:
+  _target_: src.datasets.Tokenizer
+  checkpoint: "distilbert/distilgpt2"
+  max_length: null
+
 data:
   batch_size: 1
 
