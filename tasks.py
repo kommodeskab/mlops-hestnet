@@ -67,9 +67,11 @@ def build(c: Context):
     c.run("echo Creating .env file...")
     with open(".env", "w") as f:
         f.write("DATA_PATH=...\n")
+        f.write("WANDB_ENTITY=...\n")
         f.write("WANDB_API_KEY=...\n")
         f.write("ZOTERO_API_KEY=...\n")
-    c.run("echo .env file created with WANDB_API_KEY and ZOTERO_API_KEY variables.")
+        f.write("HF_TOKEN=...\n")
+    c.run("echo .env file created with WANDB_API_KEY, WANDB_ENTITY, ZOTERO_API_KEY and HF_TOKEN variables.")
 
 
 @task
