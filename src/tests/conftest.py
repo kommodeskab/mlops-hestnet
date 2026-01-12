@@ -12,7 +12,6 @@ def setup_test_env(tmp_path_factory):
 
     env_content = f"""
 DATA_PATH={tmp_dir}/data
-MODEL_PATH={tmp_dir}/models
 HF_TOKEN=test_token_placeholder
 """
 
@@ -31,6 +30,7 @@ HF_TOKEN=test_token_placeholder
     yield tmp_dir
 
 
+# Setup mock dataset for automated tests
 @pytest.fixture(scope="session")
 def N_TRAIN():
     """Number of samples in the mock dataset."""
@@ -49,6 +49,7 @@ def mock_gigaword_dataset(N_TRAIN):
     return Dataset.from_dict(fake_data)
 
 
+# Patch mock_load in instead of src.datasets.gigaword.load_dataset for all tests
 @pytest.fixture(scope="session", autouse=True)
 def mock_dataset_loading(mock_gigaword_dataset):
     """Mock HuggingFace dataset loading to avoid downloads in CI."""
@@ -56,6 +57,7 @@ def mock_dataset_loading(mock_gigaword_dataset):
         yield mock_load
 
 
+# Delay construction of lists of datasets for tests such that they use mock_load
 @pytest.fixture(params=[[1], [2]])
 def dataset_counts(request):
     """Fixture that creates datasets based on count."""
