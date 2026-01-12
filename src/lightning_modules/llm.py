@@ -2,9 +2,9 @@ from src.lightning_modules import BaseLightningModule
 from src.losses import BaseLossFunction
 from src import OptimizerType, LRSchedulerType, TokenizedBatch, ModelOutput, StepOutput
 from src.networks import CausalTransformer
-from src.datasets import TokenizedDataset
 from torch import Tensor
 from src.datasets import Tokenizer
+
 
 class CausalLLM(BaseLightningModule):
     """A dummy LightningModule for testing purposes."""
@@ -24,7 +24,10 @@ class CausalLLM(BaseLightningModule):
         self.loss_fn = loss_fn
 
     def forward(self, batch: TokenizedBatch) -> ModelOutput:
-        output = self.network.forward(batch["input_ids"])
+        output = self.network.forward(
+            input_ids=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+        )
         return ModelOutput(output=output)
 
     def common_step(self, batch: TokenizedBatch, batch_idx: int) -> StepOutput:
@@ -35,7 +38,7 @@ class CausalLLM(BaseLightningModule):
             loss_output=loss,
             model_output=output,
         )
-    
+
     def generate(self, text: list[str], **kwargs) -> list[str]:
         generation_params = {
             "max_new_tokens": 100,
@@ -44,30 +47,31 @@ class CausalLLM(BaseLightningModule):
             "top_p": 0.95,
         }
         generation_params.update(kwargs)
-        
+
         inputs = self.tokenizer(text)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        
+
         outputs: Tensor = self.network.model.generate(**inputs, **generation_params)
         decoded = self.tokenizer.batch_decode(outputs.tolist())
         return decoded
-    
+
+
 if __name__ == "__main__":
     from src.networks import CausalTransformer
-    from src.datasets import Tokenizer, TokenizedDataset
-    
+    from src.datasets import Tokenizer
+
     tokenier = Tokenizer("distilbert/distilgpt2")
-    
+
     network = CausalTransformer("distilbert/distilgpt2")
     loss_fn = ...
-    
+
     llm = CausalLLM(
         network=network,
         loss_fn=loss_fn,
     )
-    
+
     llm._tokenizer = tokenier
-    
+
     text = ["Dette er en test sætning.", "Dette er en anden sætning."]
     generations = llm.generate(text)
     print(generations)

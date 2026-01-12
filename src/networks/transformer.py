@@ -5,6 +5,7 @@ from torch import Tensor
 
 load_dotenv()
 
+
 class CausalTransformer(nn.Module):
     def __init__(
         self,
@@ -15,16 +16,17 @@ class CausalTransformer(nn.Module):
         self.model: AutoModelForCausalLM = AutoModelForCausalLM.from_pretrained(checkpoint)
         self.model.train()
 
-    def forward(self, logits: Tensor) -> Tensor:
-        output = self.model(input_ids = logits)
-        return output['logits']
+    def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
+        output = self.model(input_ids=input_ids, attention_mask=attention_mask)
+        return output["logits"]
 
 
 if __name__ == "__main__":
     from src.datasets.gigaword import DGigawordDataset
     from src.callbacks.utils import get_batch_from_dataset
-    dataset = DGigawordDataset('distilbert/distilgpt2')
+
+    dataset = DGigawordDataset("distilbert/distilgpt2")
     batch = get_batch_from_dataset(dataset, batch_size=1)
     model = CausalTransformer(checkpoint="distilbert/distilgpt2")
     output = model.forward(batch)
-    print(output['output'].shape)
+    print(output["output"].shape)
