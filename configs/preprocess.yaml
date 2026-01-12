@@ -8,5 +8,3 @@ preprocess_path: data/processed/danish_gigaword
 batch_size: null # 1000
 writer_batch_size: null # The main RAM variable. 1000 to be safe and slow.
 num_proc: 8
-
-

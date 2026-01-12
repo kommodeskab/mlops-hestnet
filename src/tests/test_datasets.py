@@ -44,12 +44,12 @@ def _validate_raw_sample(sample, checkpoint):
     assert "input_ids" in data, "Data dictionary should contain 'input_ids' key"
     assert "attention_mask" in data, "Data dictionary should contain 'attention_mask' key"
     assert data["input_ids"].ndim == 2, "input_ids shape should be (1, x)"
-    assert data["input_ids"].shape[0] == 1 and data["input_ids"].shape[1] <= 1024, (
-        f"input_ids shape should be (1, <=1024), got {data['input_ids'].shape}"
-    )
-    assert data["input_ids"].shape == data["attention_mask"].shape, (
-        f"input_ids and attention_mask shapes must match, got {data['input_ids'].shape} vs {data['attention_mask'].shape}"
-    )
+    assert (
+        data["input_ids"].shape[0] == 1 and data["input_ids"].shape[1] <= 1024
+    ), f"input_ids shape should be (1, <=1024), got {data['input_ids'].shape}"
+    assert (
+        data["input_ids"].shape == data["attention_mask"].shape
+    ), f"input_ids and attention_mask shapes must match, got {data['input_ids'].shape} vs {data['attention_mask'].shape}"
 
 
 def _validate_tokenized_sample(sample):
@@ -59,16 +59,16 @@ def _validate_tokenized_sample(sample):
     assert "labels" in sample, "Tokenized sample should contain 'labels' key"
 
     # Preprocessed data should be tensors
-    assert isinstance(sample["input_ids"], torch.Tensor), (
-        f"Preprocessed input_ids should be torch.Tensor, got {type(sample['input_ids'])}"
-    )
-    assert isinstance(sample["attention_mask"], torch.Tensor), (
-        f"Preprocessed attention_mask should be torch.Tensor, got {type(sample['attention_mask'])}"
-    )
+    assert isinstance(
+        sample["input_ids"], torch.Tensor
+    ), f"Preprocessed input_ids should be torch.Tensor, got {type(sample['input_ids'])}"
+    assert isinstance(
+        sample["attention_mask"], torch.Tensor
+    ), f"Preprocessed attention_mask should be torch.Tensor, got {type(sample['attention_mask'])}"
     if "labels" in sample:
-        assert isinstance(sample["labels"], torch.Tensor), (
-            f"Preprocessed labels should be torch.Tensor, got {type(sample['labels'])}"
-        )
+        assert isinstance(
+            sample["labels"], torch.Tensor
+        ), f"Preprocessed labels should be torch.Tensor, got {type(sample['labels'])}"
 
 
 @pytest.mark.parametrize("size", [None, 1, 69, 100])
@@ -99,9 +99,9 @@ def test_tdgigaword_dataset(checkpoint, size, preprocess, N_TRAIN):
     if size is None:
         size = N_TRAIN
     assert len(dataset) == size, f"Dataset length should be {size}, got {len(dataset)}"
-    assert dataset.preprocessed == preprocess, (
-        f"Dataset preprocessed state should be {preprocess}, got {dataset.preprocessed}"
-    )
+    assert (
+        dataset.preprocessed == preprocess
+    ), f"Dataset preprocessed state should be {preprocess}, got {dataset.preprocessed}"
 
     # Test samples
     for i in _get_random_indices(size, n_samples=5):
@@ -124,12 +124,12 @@ def test_tdgigaword_dataloader(checkpoint, size, preprocess, batch_size):
     assert "input_ids" in batch, f"Batch should contain 'input_ids', got keys: {batch.keys()}"
     assert "attention_mask" in batch, f"Batch should contain 'attention_mask', got keys: {batch.keys()}"
     assert "labels" in batch, f"Batch should contain 'labels', got keys: {batch.keys()}"
-    assert batch["input_ids"].shape[0] == min(batch_size, size), (
-        f"Batch size should be 4, got {batch['input_ids'].shape[0]}"
-    )
-    assert batch["input_ids"].shape == batch["labels"].shape, (
-        f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
-    )
+    assert batch["input_ids"].shape[0] == min(
+        batch_size, size
+    ), f"Batch size should be 4, got {batch['input_ids'].shape[0]}"
+    assert (
+        batch["input_ids"].shape == batch["labels"].shape
+    ), f"input_ids and labels shapes must match, got {batch['input_ids'].shape} vs {batch['labels'].shape}"
 
 
 @pytest.mark.parametrize("checkpoint,size", [("distilbert/distilgpt2", 50)])

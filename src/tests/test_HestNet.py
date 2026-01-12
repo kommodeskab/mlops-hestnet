@@ -21,9 +21,9 @@ def test_HestNet(checkpoint):
 
     # Test loss properties
     assert isinstance(outputs.loss, torch.Tensor), "Loss should be a torch.Tensor"
-    assert outputs.loss.ndim == 0 or (outputs.loss.ndim == 1 and outputs.loss.shape[0] == 1), (
-        f"Loss should be a scalar, got shape {outputs.loss.shape}"
-    )
+    assert outputs.loss.ndim == 0 or (
+        outputs.loss.ndim == 1 and outputs.loss.shape[0] == 1
+    ), f"Loss should be a scalar, got shape {outputs.loss.shape}"
     assert outputs.loss.item() >= 0, f"Loss should be non-negative, got {outputs.loss.item():.4f}"
     assert not torch.isnan(outputs.loss), "Loss should not be NaN"
     assert not torch.isinf(outputs.loss), "Loss should not be infinite"
