@@ -119,7 +119,9 @@ def get_ckpt_path(
                 filename=filename,
             )
         except Exception as e:
-            raise ValueError(f"Could not find or download checkpoint with filename '{filename}' for experiment id '{id}' in project '{project}'.") from e
+            raise ValueError(
+                f"Could not find or download checkpoint with filename '{filename}' for experiment id '{id}' in project '{project}'."
+            ) from e
 
     return ckpt_path
 
@@ -134,7 +136,7 @@ def what_logs_to_delete():
     api = wandb.Api()
     project_names = api.projects()
     project_names = [project.name for project in project_names]
-    print("It is save to delete the following folders:")
+    print("It is safe to delete the following folders:")
     for project_name in project_names:
         if not os.path.exists(f"logs/{project_name}"):
             continue
