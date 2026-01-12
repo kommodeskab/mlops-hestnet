@@ -1,2 +1,9 @@
 text_callback:
   _target_: src.callbacks.TextCallback
+  text:
+    - "Hovedstaden i Danmark er"
+    - "Damen bar en trøje af"
+    - "Katten sad på en"
+    - "Dette er en sætning, hvor"
+    - "Maskinlæring er en gren af"
+    - "Python er et programmeringssprog, som"

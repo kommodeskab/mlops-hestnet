@@ -1,8 +1,9 @@
 from transformers import AutoTokenizer, PreTrainedTokenizerBase
 from typing import Optional
-from src import TensorDict, TokenizedSample
+from src import TensorDict, TokenizedBatch
 from src.datasets.basedataset import BaseDataset
-from src.datasets.textdataset import TextDataset
+from src.datasets.textdataset import BaseTextDataset
+from torch.utils.data import ConcatDataset
 
 
 class Tokenizer:
@@ -32,21 +33,20 @@ class Tokenizer:
 class TokenizedDataset(BaseDataset):
     def __init__(
         self,
-        dataset: TextDataset,
+        datasets: list[BaseTextDataset],
         tokenizer: Tokenizer,
     ):
         super().__init__()
-        self.dataset = dataset
+        self.dataset = ConcatDataset(datasets)
         self.tokenizer = tokenizer
 
     def __len__(self) -> int:
         return len(self.dataset)
 
-    def __getitem__(self, index: int) -> TokenizedSample:
+    def __getitem__(self, index: int) -> TokenizedBatch:
         text = self.dataset[index]["text"]
         tokens = self.tokenizer(text)
-        return TokenizedSample(
-            text=text,
+        return TokenizedBatch(
             input_ids=tokens["input_ids"].squeeze(),
             attention_mask=tokens["attention_mask"].squeeze(),
         )

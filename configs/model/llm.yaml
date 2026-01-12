@@ -6,9 +6,6 @@ network:
 
 tokenizer: ${tokenizer}
 
-loss_fn:
-  _target_: src.losses.CausalLMLoss
-
 optimizer:
   _target_: torch.optim.AdamW
   _partial_: True

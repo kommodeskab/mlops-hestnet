@@ -15,15 +15,9 @@ ImageType = list[Tensor | Figure | np.ndarray]
 class Batch(TypedDict):
     input: Tensor
     target: Tensor
-    
 
-class TokenizedSample(TypedDict):
-    text: str
-    input_ids: Tensor
-    attention_mask: Tensor
-    
+
 class TokenizedBatch(TypedDict):
-    texts: list[str]
     input_ids: Tensor
     attention_mask: Tensor
 

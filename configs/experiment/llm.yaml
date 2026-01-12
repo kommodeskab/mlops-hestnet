@@ -3,7 +3,7 @@
 defaults:
   - override /trainer: gpu
   - override /data: gigaword
-  - override /callbacks: dummy_callbacks
+  - override /callbacks: llm_callbacks
   - override /model: llm
   - override /logger: default
 
@@ -22,7 +22,3 @@ data:
 
 logger:
   log_model: False
-
-callbacks:
-  text_callback:
-    _target_: src.callbacks.TextCallback
