@@ -1,8 +1,9 @@
+import itertools
 import pytest
 import torch
 
 from src import TextSample
-from src.datasets import DummyDataset, DGigawordDataset, Tokenizer
+from src.datasets import DummyDataset, DGigawordDataset, Tokenizer, TokenizedDataset
 
 
 # here is an example test function
@@ -44,6 +45,19 @@ def _validate_tokenizer_output(data, tokenizer, expected_batch_size=1):
     ), f"input_ids and attention_mask shapes must match, got {data['input_ids'].shape} vs {data['attention_mask'].shape}"
 
 
+def _validate_tokenized_dataset_output(data, Tdataset):
+    """Helper to validate tokenizer output structure."""
+    assert "input_ids" in data, "Data dictionary should contain 'input_ids' key"
+    assert "attention_mask" in data, "Data dictionary should contain 'attention_mask' key"
+    assert data["input_ids"].ndim == 1, "input_ids shape should be (x)"
+    assert (
+        data["input_ids"].shape[0] <= Tdataset.tokenizer.max_length
+    ), f"input_ids shape should be (x <={Tdataset.tokenizer.max_length}), got {data['input_ids'].shape}"
+    assert (
+        data["input_ids"].shape == data["attention_mask"].shape
+    ), f"input_ids and attention_mask shapes must match, got {data['input_ids'].shape} vs {data['attention_mask'].shape}"
+
+
 def _validate_tokenized_sample(data):
     """Helper to validate tokenized samples."""
     assert "input_ids" in data, "Tokenized sample should contain 'input_ids' key"
@@ -73,13 +87,22 @@ def test_dgigaword_dataset(checkpoint, N_TRAIN):
     for i in _get_random_indices(len(dataset), n_samples=5):
         _validate_raw_sample(dataset[i])
 
+    for sample in itertools.islice(dataset, 5):
+        _validate_raw_sample(sample)
+
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-@pytest.mark.parametrize("sample", [TextSample(text="Jeg bor i et kommodeskab")])
-def test_tokenizer(checkpoint: str, sample: TextSample):
+@pytest.mark.parametrize("sample", ["Jeg bor i et kommodeskab"])
+def test_tokenizer(checkpoint: str, sample: str):
     """Test tokenizer processes text correctly."""
     tokenizer = Tokenizer(checkpoint)
-    data = tokenizer(sample["text"])
+    assert (
+        tokenizer.max_length <= tokenizer.tokenizer.model_max_length
+    ), f"Tokenizer max length {tokenizer.max_length} should be less than or equal to model max length {tokenizer.tokenizer.model_max_length}"
+    assert (
+        tokenizer.tokenizer.pad_token
+    ), f"Tokenizer should contain a pad_token but found {tokenizer.tokenizer.pad_token}"
+    data = tokenizer(sample)
     _validate_tokenizer_output(data, tokenizer)
     _validate_tokenized_sample(data)
 
@@ -94,6 +117,19 @@ def test_dgigaword_dataset_and_tokenizer(checkpoint):
         sample = dataset[i]["text"]
         data = tokenizer(sample)
         _validate_tokenizer_output(data, tokenizer)
+        _validate_tokenized_sample(data)
+
+
+@pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
+@pytest.mark.parametrize("datasets", [[DGigawordDataset()], [DGigawordDataset(), DGigawordDataset()]])
+def test_tokenized_dataset(checkpoint, datasets: list[DGigawordDataset]):
+    """Test tokenized dataset"""
+    tokenizer = Tokenizer(checkpoint)
+    Tdataset = TokenizedDataset(datasets, tokenizer)
+
+    for i in _get_random_indices(len(Tdataset), n_samples=5):
+        data = Tdataset[i]
+        _validate_tokenized_dataset_output(data, Tdataset)
         _validate_tokenized_sample(data)
 
 
