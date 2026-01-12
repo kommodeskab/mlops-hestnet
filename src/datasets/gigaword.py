@@ -11,13 +11,15 @@ logger = logging.getLogger(__name__)
 class DGigawordDataset(BaseTextDataset):
     """Danish Gigaword dataset."""
 
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         super().__init__()
         self.name = "danish-foundation-models/danish-gigaword"
         self.ds = load_dataset(
             path=self.name,
             split="train",  # The dataset only has the trian split.
-            cache_dir=self.data_path
+            cache_dir=self.data_path,
         )
 
     @property
@@ -36,10 +38,11 @@ class DGigawordDataset(BaseTextDataset):
         return len(self.ds)
 
     def __getitem__(self, index: int) -> TextSample:
-        return TextSample(text = self.ds[index]['text'])
-    
+        return TextSample(text=self.ds[index]["text"])
+
+
 if __name__ == "__main__":
     tokenizer = Tokenizer("distilbert/distilgpt2")
-    dataset = DGigawordDataset(tokenizer=tokenizer)
+    dataset = DGigawordDataset()
     sample = dataset[0]
-    print(sample['text'])
+    print(sample["text"])
