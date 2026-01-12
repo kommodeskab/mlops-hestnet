@@ -3,4 +3,4 @@ defaults:
   - logloss
   - modelcheckpoint
   - textcallback
-  - loggrads
+  - loggrad
