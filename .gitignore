@@ -3,6 +3,7 @@
 /hpc
 /playgrounds
 /data
+/wandb
 
 # ruff cache
 /.ruff_cache
