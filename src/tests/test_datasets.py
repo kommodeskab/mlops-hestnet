@@ -4,6 +4,7 @@ import torch
 
 from src import TextSample
 from src.datasets import DummyDataset, DGigawordDataset, Tokenizer, TokenizedDataset
+from src.data_modules import BaseDM
 
 
 # here is an example test function
@@ -32,7 +33,7 @@ def _validate_raw_sample(sample: TextSample):
     assert isinstance(sample["text"], str), "Text should be a string"
 
 
-def _validate_tokenizer_output(data, tokenizer, expected_batch_size=1):
+def _validate_tokenizer_output_batched(data, tokenizer, expected_batch_size=1):
     """Helper to validate tokenizer output structure."""
     assert "input_ids" in data, "Data dictionary should contain 'input_ids' key"
     assert "attention_mask" in data, "Data dictionary should contain 'attention_mask' key"
@@ -45,8 +46,8 @@ def _validate_tokenizer_output(data, tokenizer, expected_batch_size=1):
     ), f"input_ids and attention_mask shapes must match, got {data['input_ids'].shape} vs {data['attention_mask'].shape}"
 
 
-def _validate_tokenized_dataset_output(data, Tdataset):
-    """Helper to validate tokenizer output structure."""
+def _validate_tokenizer_output_squeezed(data, Tdataset):
+    """Helper to validate tokenized dataset output structure."""
     assert "input_ids" in data, "Data dictionary should contain 'input_ids' key"
     assert "attention_mask" in data, "Data dictionary should contain 'attention_mask' key"
     assert data["input_ids"].ndim == 1, "input_ids shape should be (x)"
@@ -103,7 +104,7 @@ def test_tokenizer(checkpoint: str, sample: str):
         tokenizer.tokenizer.pad_token
     ), f"Tokenizer should contain a pad_token but found {tokenizer.tokenizer.pad_token}"
     data = tokenizer(sample)
-    _validate_tokenizer_output(data, tokenizer)
+    _validate_tokenizer_output_batched(data, tokenizer)
     _validate_tokenized_sample(data)
     decoded_data = tokenizer.batch_decode(data["input_ids"])
     assert isinstance(decoded_data[0], str), f"Decoded data should be list[str] but got {type(decoded_data)}"
@@ -119,25 +120,63 @@ def test_dgigaword_dataset_and_tokenizer(checkpoint):
     for i in _get_random_indices(len(dataset), n_samples=5):
         sample = dataset[i]["text"]
         data = tokenizer(sample)
-        _validate_tokenizer_output(data, tokenizer)
+        _validate_tokenizer_output_batched(data, tokenizer)
+        _validate_tokenized_sample(data)
+
+
+@pytest.fixture(params=[[1], [2]])
+def dataset_counts(request):
+    """Fixture that creates datasets based on count."""
+    return [DGigawordDataset() for _ in range(request.param[0])]
+
+
+@pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
+def test_tokenized_dataset(checkpoint, dataset_counts, N_TRAIN):
+    """Test tokenized dataset"""
+    datasets = dataset_counts
+    tokenizer = Tokenizer(checkpoint)
+    Tdataset = TokenizedDataset(datasets, tokenizer)
+    assert len(Tdataset) == N_TRAIN * len(
+        datasets
+    ), f"Dataset length should be {N_TRAIN * len(datasets)}, got {len(Tdataset)}"
+
+    for i in _get_random_indices(len(Tdataset), n_samples=5):
+        data = Tdataset[i]
+        _validate_tokenizer_output_squeezed(data, Tdataset)
         _validate_tokenized_sample(data)
 
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-@pytest.mark.parametrize("datasets", [[DGigawordDataset()], [DGigawordDataset(), DGigawordDataset()]])
-def test_tokenized_dataset(checkpoint, datasets: list[DGigawordDataset]):
-    """Test tokenized dataset"""
+@pytest.mark.parametrize("train_val_split", [None, 0.95, 0.1])
+def test_DM(checkpoint, dataset_counts, train_val_split):
+    """Test datamodule compatibility"""
+    datasets = dataset_counts
     tokenizer = Tokenizer(checkpoint)
-    Tdataset = TokenizedDataset(datasets, tokenizer)
+    # It would be nice if the datamodule stored the tokenizer as well.
+    # At the moment it is overwritten when the dataset is split into subsets.
+    datamodule = BaseDM(
+        TokenizedDataset(datasets, tokenizer),
+        train_val_split=train_val_split,
+    )
 
-    for i in _get_random_indices(len(Tdataset), n_samples=5):
-        data = Tdataset[i]
-        _validate_tokenized_dataset_output(data, Tdataset)
+    for data in itertools.islice(datamodule.train_dataloader(), 5):
+        _validate_tokenizer_output_batched(data, tokenizer)
         _validate_tokenized_sample(data)
+
+    if datamodule.valset:
+        for data in itertools.islice(datamodule.val_dataloader(), 5):
+            _validate_tokenizer_output_batched(data, tokenizer)
+            _validate_tokenized_sample(data)
+
+    if datamodule.testset:
+        for data in itertools.islice(datamodule.test_dataloader(), 5):
+            _validate_tokenizer_output_batched(data, tokenizer)
+            _validate_tokenized_sample(data)
 
 
 if __name__ == "__main__":
     checkpoint = "distilbert/distilgpt2"
     sample = "Jeg bor i et kommodeskab"
-    test_tokenizer(checkpoint, sample)
-    test_dgigaword_dataset_and_tokenizer(checkpoint)
+    # test_tokenizer(checkpoint, sample)
+    # test_dgigaword_dataset_and_tokenizer(checkpoint)
+    test_DM(checkpoint, [DGigawordDataset()], 1)
