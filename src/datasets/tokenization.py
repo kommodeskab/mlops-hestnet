@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, PreTrainedTokenizerBase
 from typing import Optional
 from src import TensorDict, TokenizedSample
 from src.datasets.basedataset import BaseDataset
-from src.datasets.textdataset import TextSample
+from src.datasets.textdataset import TextDataset
 
 
 class Tokenizer:
@@ -32,7 +32,7 @@ class Tokenizer:
 class TokenizedDataset(BaseDataset):
     def __init__(
         self,
-        dataset: TextSample,
+        dataset: TextDataset,
         tokenizer: Tokenizer,
     ):
         super().__init__()
