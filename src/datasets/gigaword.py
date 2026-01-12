@@ -9,7 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 class DGigawordDataset(BaseTextDataset):
-    """Danish Gigaword dataset."""
+    """
+    Danish Gigaword dataset.
+    Can be found at: https://huggingface.co/datasets/danish-foundation-models/danish-gigaword
+    Contains 471.550 Danish texts.
+    """
 
     def __init__(
         self,
