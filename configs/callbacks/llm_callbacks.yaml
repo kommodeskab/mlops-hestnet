@@ -1,0 +1,5 @@
+defaults:
+  - learningratemonitor
+  - logloss
+  - modelcheckpoint
+  - textcallback

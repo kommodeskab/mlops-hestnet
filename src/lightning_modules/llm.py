@@ -1,10 +1,10 @@
 from src.lightning_modules import BaseLightningModule
-from src.losses import BaseLossFunction
-from src import OptimizerType, LRSchedulerType, TokenizedBatch, ModelOutput, StepOutput
+from src import OptimizerType, LRSchedulerType, TokenizedBatch, StepOutput
 from src.networks import CausalTransformer
 from torch import Tensor
 from src.datasets import Tokenizer
 import torch
+from src import LossOutput
 
 
 class CausalLLM(BaseLightningModule):
@@ -14,7 +14,6 @@ class CausalLLM(BaseLightningModule):
         self,
         network: CausalTransformer,
         tokenizer: Tokenizer,
-        loss_fn: BaseLossFunction,
         optimizer: OptimizerType = None,
         lr_scheduler: LRSchedulerType = None,
     ):
@@ -22,21 +21,21 @@ class CausalLLM(BaseLightningModule):
         super().__init__(optimizer=optimizer, lr_scheduler=lr_scheduler)
         self.tokenizer = tokenizer
         self.network = network
-        self.loss_fn = loss_fn
 
-    def forward(self, batch: TokenizedBatch) -> ModelOutput:
-        output = self.network.forward(
+    def forward(self, batch: TokenizedBatch):
+        return self.network.forward(
             input_ids=batch["input_ids"],
             attention_mask=batch["attention_mask"],
         )
-        return ModelOutput(output=output)
 
     def common_step(self, batch: TokenizedBatch, batch_idx: int) -> StepOutput:
         output = self.forward(batch)
-        loss = self.loss_fn(output, batch)
+        loss = output.loss
         return StepOutput(
-            loss=loss["loss"],
-            loss_output=loss,
+            loss=loss,  # we take gradients on this
+            loss_output=LossOutput(
+                loss=loss
+            ),  # we log this. the loss_output can also contain other things, like metrics
             model_output=output,
         )
 
@@ -62,17 +61,13 @@ if __name__ == "__main__":
     from src.networks import CausalTransformer
     from src.datasets import Tokenizer
 
-    tokenier = Tokenizer("distilbert/distilgpt2")
-
+    tokenizer = Tokenizer("distilbert/distilgpt2")
     network = CausalTransformer("distilbert/distilgpt2")
-    loss_fn = ...
 
     llm = CausalLLM(
         network=network,
-        loss_fn=loss_fn,
+        tokenizer=tokenizer,
     )
-
-    llm._tokenizer = tokenier
 
     text = ["Dette er en test sætning.", "Dette er en anden sætning."]
     generations = llm.generate(text)
