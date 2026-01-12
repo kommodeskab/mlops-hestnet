@@ -64,5 +64,5 @@ omit = [          # Don't measure coverage for these patterns:
     "*/models/*",          # Model files
     "*/__pycache__/*",     # Python cache
     "*/.venv/*",           # Virtual environment
-    "*/_remote_module_non_scriptable.py",  # PyTorch temp module (you added this)
+    "*/_remote_module_non_scriptable.py",  # PyTorch temp module
 ]
