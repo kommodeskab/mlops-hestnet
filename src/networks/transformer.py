@@ -14,7 +14,9 @@ class CausalTransformer(nn.Module):
     ):
         super().__init__()
         self.checkpoint = checkpoint
-        self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(checkpoint)
+        self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
+            checkpoint
+        )  # Note that this is chached in the global hugging face cache
         self.model.train()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> CausalLMOutputWithCrossAttentions:
