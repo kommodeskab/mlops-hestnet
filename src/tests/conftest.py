@@ -2,6 +2,8 @@ import pytest
 from datasets import Dataset
 from unittest.mock import patch
 
+from src.datasets import DGigawordDataset
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_env(tmp_path_factory):
@@ -52,3 +54,9 @@ def mock_dataset_loading(mock_gigaword_dataset):
     """Mock HuggingFace dataset loading to avoid downloads in CI."""
     with patch("src.datasets.gigaword.load_dataset", return_value=mock_gigaword_dataset) as mock_load:
         yield mock_load
+
+
+@pytest.fixture(params=[[1], [2]])
+def dataset_counts(request):
+    """Fixture that creates datasets based on count."""
+    return [DGigawordDataset() for _ in range(request.param[0])]

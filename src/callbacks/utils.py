@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader, Dataset
-from src.utils import Batch
+from src import Batch
 
 
 def get_batch_from_dataset(dataset: Dataset, batch_size: int, shuffle: bool = False) -> Batch:

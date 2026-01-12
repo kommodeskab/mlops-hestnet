@@ -124,12 +124,6 @@ def test_dgigaword_dataset_and_tokenizer(checkpoint):
         _validate_tokenized_sample(data)
 
 
-@pytest.fixture(params=[[1], [2]])
-def dataset_counts(request):
-    """Fixture that creates datasets based on count."""
-    return [DGigawordDataset() for _ in range(request.param[0])]
-
-
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 def test_tokenized_dataset(checkpoint, dataset_counts, N_TRAIN):
     """Test tokenized dataset"""
@@ -148,7 +142,7 @@ def test_tokenized_dataset(checkpoint, dataset_counts, N_TRAIN):
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("train_val_split", [None, 0.95, 0.1])
-def test_DM(checkpoint, dataset_counts, train_val_split):
+def test_datamodule(checkpoint, dataset_counts, train_val_split):
     """Test datamodule compatibility"""
     datasets = dataset_counts
     tokenizer = Tokenizer(checkpoint)
@@ -179,4 +173,4 @@ if __name__ == "__main__":
     sample = "Jeg bor i et kommodeskab"
     # test_tokenizer(checkpoint, sample)
     # test_dgigaword_dataset_and_tokenizer(checkpoint)
-    test_DM(checkpoint, [DGigawordDataset()], 1)
+    test_datamodule(checkpoint, [DGigawordDataset()], 1)
