@@ -63,9 +63,8 @@ def _validate_tokenized_sample(data):
         ), f"Preprocessed labels should be torch.Tensor, got {type(data['labels'])}"
 
 
-# @pytest.mark.parametrize("size", [None, 1, 69, 100])
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
-def test_dgigaword_dataset(checkpoint, N_TRAIN=471550):
+def test_dgigaword_dataset(checkpoint, N_TRAIN):
     """Test raw DGigawordDataset returns text samples."""
     dataset = DGigawordDataset()
     assert len(dataset) == N_TRAIN, f"Dataset length should be {N_TRAIN}, got {len(dataset)}"
@@ -102,3 +101,4 @@ if __name__ == "__main__":
     checkpoint = "distilbert/distilgpt2"
     sample = TextSample(text="Jeg bor i et kommodeskab")
     test_tokenizer(checkpoint, sample)
+    test_dgigaword_dataset_and_tokenizer(checkpoint)
