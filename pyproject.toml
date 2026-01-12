@@ -51,3 +51,18 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length=120
+
+[tool.coverage.run]
+source = ["src"]  # Only measure coverage for code in src/
+omit = [          # Don't measure coverage for these patterns:
+    "*/tests/*",           # Test files
+    "*/test_data/*",       # Test data
+    "*/site-packages/*",   # Third-party packages
+    "*/.cache/*",          # Cache directories
+    "*/datasets/*",        # Dataset files
+    "*/data/*",            # Data directories
+    "*/models/*",          # Model files
+    "*/__pycache__/*",     # Python cache
+    "*/.venv/*",           # Virtual environment
+    "*/_remote_module_non_scriptable.py",  # PyTorch temp module (you added this)
+]
