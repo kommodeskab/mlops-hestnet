@@ -16,21 +16,37 @@ def cleandocker(c: Context, all: bool = False):
 
 
 @task
-def image(c: Context):
+def image(c: Context, gpu: bool = False):
     """Build the Docker development container image."""
-    c.run("docker build -f .devcontainer/Dockerfile -t main-image .")
+    if gpu:
+        c.run("docker build -f .devcontainer/gpu.dockerfile -t main-image-gpu .")
+    else:
+        c.run("docker build -f .devcontainer/Dockerfile -t main-image .")
 
 
 @task
-def dockermain(c: Context, extra: str = ""):
+def dockermain(c: Context, image_name: str = "", gpu: bool = False, extra: str = ""):
     """Run main.py inside the Docker development container. Specify the 'extra' argument to add extra command line arguments."""
-    c.run(
-        "docker run --rm "
-        "-v $(pwd):/app "
-        "-v uv-venv:/app/.venv "
-        "-v uv-cache:/root/.cache/uv "
-        f"main-image {extra}"
-    )
+    if gpu:
+        if image_name == "":
+            image_name = "main-image-gpu"
+        c.run(
+            "docker run --gpus all --rm "
+            "-v $(pwd):/app "
+            "-v uv-venv:/app/.venv "
+            "-v uv-cache:/root/.cache/uv "
+            f"{image_name} {extra}"
+        )
+    else:
+        if image_name == "":
+            image_name = "main-image"
+        c.run(
+            "docker run --rm "
+            "-v $(pwd):/app "
+            "-v uv-venv:/app/.venv "
+            "-v uv-cache:/root/.cache/uv "
+            f"{image_name} {extra}"
+        )
 
 
 @task
