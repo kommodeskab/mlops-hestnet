@@ -105,6 +105,9 @@ def test_tokenizer(checkpoint: str, sample: str):
     data = tokenizer(sample)
     _validate_tokenizer_output(data, tokenizer)
     _validate_tokenized_sample(data)
+    decoded_data = tokenizer.batch_decode(data["input_ids"])
+    assert isinstance(decoded_data[0], str), f"Decoded data should be list[str] but got {type(decoded_data)}"
+    assert decoded_data[0] == sample, f"Decoded data should recover the sample but got {decoded_data[0]=} != {sample=}"
 
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
@@ -135,6 +138,6 @@ def test_tokenized_dataset(checkpoint, datasets: list[DGigawordDataset]):
 
 if __name__ == "__main__":
     checkpoint = "distilbert/distilgpt2"
-    sample = TextSample(text="Jeg bor i et kommodeskab")
+    sample = "Jeg bor i et kommodeskab"
     test_tokenizer(checkpoint, sample)
     test_dgigaword_dataset_and_tokenizer(checkpoint)
