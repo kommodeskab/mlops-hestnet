@@ -11,7 +11,7 @@ def stopcontainers(c: Context):
 
 @task
 def cleandocker(c: Context, all: bool = False):
-    """Remove (unused) Docker containers, images, and volumes. Pass -all to remove everything."""
+    """Remove (unused) Docker containers, images, and volumes. Pass --all to remove everything."""
     c.run(f"docker system prune {'-a' if all else ''}")
 
 
