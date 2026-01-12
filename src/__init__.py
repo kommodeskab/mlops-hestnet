@@ -17,6 +17,15 @@ class Batch(TypedDict):
     target: Tensor
 
 
+class TokenizedBatch(TypedDict):
+    input_ids: Tensor
+    attention_mask: Tensor
+
+
+class TextSample(TypedDict):
+    text: str
+
+
 class ModelOutput(TypedDict):
     output: Tensor
 

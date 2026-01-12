@@ -1,0 +1,9 @@
+_target_: src.data_modules.BaseDM
+
+trainset:
+  _target_: src.datasets.TokenizedDataset
+  datasets: # a list of datasets. why? so that we can combine multiple datasets if we want
+    - _target_: src.datasets.DGigawordDataset
+  tokenizer: ${tokenizer}
+
+train_val_split: 0.95

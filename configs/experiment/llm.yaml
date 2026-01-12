@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - override /trainer: gpu
+  - override /data: gigaword
+  - override /callbacks: llm_callbacks
+  - override /model: llm
+  - override /logger: default
+
+project_name: 'andreas-test-llm'
+task_name: 'andreas-test'
+compile: False # we can only compile on GPU
+phase: 'train'
+
+tokenizer:
+  _target_: src.datasets.Tokenizer
+  checkpoint: "distilbert/distilgpt2"
+  max_length: null
+
+data:
+  batch_size: 1
+
+logger:
+  log_model: False
