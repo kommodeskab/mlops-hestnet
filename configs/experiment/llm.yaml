@@ -7,18 +7,31 @@ defaults:
   - override /model: llm
   - override /logger: default
 
-project_name: 'andreas-test-llm'
+project_name: 'Causal LLM Experiment'
 task_name: 'andreas-test'
 compile: False # we can only compile on GPU
 phase: 'train'
 
+model_name: "distilbert/distilgpt2"
+
 tokenizer:
   _target_: src.datasets.Tokenizer
-  checkpoint: "distilbert/distilgpt2"
+  checkpoint: ${model_name}
   max_length: null
 
 data:
-  batch_size: 1
+  batch_size: 16
+  shuffle: True
+  num_workers: 16
+  pin_memory: True
+  drop_last: True
 
 logger:
-  log_model: False
+  log_model: True
+
+trainer:
+  val_check_interval: 5000
+  max_steps: -1
+  max_epochs: -1
+  log_every_n_steps: 50
+  precision: bf16
