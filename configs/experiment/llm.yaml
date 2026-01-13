@@ -2,13 +2,13 @@
 
 defaults:
   - override /trainer: gpu
-  - override /data: gigaword
+  - override /data: all_text
   - override /callbacks: llm_callbacks
   - override /model: llm
   - override /logger: default
 
-project_name: 'andreas-test-llm'
-task_name: 'andreas-test'
+project_name: 'Causal LLM Experiment'
+task_name: 'test'
 compile: False # we can only compile on GPU
 phase: 'train'
 

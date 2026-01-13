@@ -4,3 +4,6 @@ from .gigaword import DGigawordDataset as DGigawordDataset
 from .tokenization import Tokenizer as Tokenizer
 from .tokenization import TokenizedDataset as TokenizedDataset
 from .textdataset import BaseTextDataset as BaseTextDataset
+from .reddit_da import RedditDaDataset as RedditDaDataset
+from .reddit_da import ScandiRedditDataset as ScandiRedditDataset
+from .nordjylland_news import NordjyllandNewsDataset as NordjyllandNewsDataset
