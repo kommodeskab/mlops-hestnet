@@ -7,6 +7,17 @@ from torch.utils.data import ConcatDataset
 
 
 class Tokenizer:
+    """
+    Wrapper around a HuggingFace tokenizer for encoding text into tokens.
+
+    Handles tokenization of strings or lists of strings with configurable
+    padding, truncation, and left-side padding for causal language models.
+
+    Args:
+        checkpoint (str): The HuggingFace checkpoint name or path for the tokenizer.
+        max_length (Optional[int]): Maximum sequence length for tokenization.
+    """
+
     def __init__(
         self,
         checkpoint: str,
@@ -17,6 +28,15 @@ class Tokenizer:
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def __call__(self, string: str | list[str]) -> TensorDict:
+        """
+        Tokenize input string(s) into token tensors.
+
+        Args:
+            string (str | list[str]): A single string or list of strings to tokenize.
+
+        Returns:
+            TensorDict: Dictionary containing 'input_ids' and 'attention_mask' as PyTorch tensors.
+        """
         return self.tokenizer(
             string,
             padding="max_length",
@@ -27,10 +47,30 @@ class Tokenizer:
         )
 
     def batch_decode(self, token_ids: list[list[int]]) -> list[str]:
+        """
+        Decode token IDs back into text strings.
+
+        Args:
+            token_ids (list[list[int]]): Batch of token ID sequences.
+
+        Returns:
+            list[str]: Decoded text strings with special tokens removed.
+        """
         return self.tokenizer.batch_decode(token_ids, skip_special_tokens=True)
 
 
 class TokenizedDataset(BaseDataset):
+    """
+    Dataset that tokenizes text on-the-fly using a provided tokenizer.
+
+    Combines multiple text datasets and applies tokenization to each sample,
+    returning tokenized batches with input IDs and attention masks.
+
+    Args:
+        datasets (list[BaseTextDataset]): List of text datasets to combine.
+        tokenizer (Tokenizer): Tokenizer to use for tokenizing text samples.
+    """
+
     def __init__(
         self,
         datasets: list[BaseTextDataset],
