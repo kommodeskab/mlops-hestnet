@@ -1,0 +1,26 @@
+_target_: src.data_modules.BaseDM
+
+trainset:
+  _target_: src.datasets.TokenizedDataset
+  datasets: # a list of datasets. why? so that we can combine multiple datasets if we want
+    - _target_: src.datasets.DGigawordDataset
+    - _target_: src.datasets.NordjyllandNewsDataset
+    - _target_: torch.utils.data.Subset # make a subset of the RedditDaDataset dataset
+      dataset:
+        _target_: src.datasets.RedditDaDataset
+      indices:
+        _target_: builtins.range
+        _args_: [50000]
+    - _target_: torch.utils.data.Subset # make a subset of the dataset
+      dataset:
+        _target_: src.datasets.ScandiRedditDataset
+      indices:
+        _target_: builtins.range
+        _args_: [50000]
+
+  tokenizer: ${tokenizer}
+
+train_val_split: 0.95
+shuffle: True
+drop_last: True
+num_workers: 16
