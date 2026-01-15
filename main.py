@@ -61,6 +61,9 @@ def my_app(cfg: DictConfig) -> None:
         assert cfg.ckpt_filename is None, "'ckpt_filename' should be None when not continuing from an id."
         id, ckpt_path = get_current_time(), None
 
+    # needed in cloud
+    wandb.login(key=os.environ["WANDB_API_KEY"])
+
     wandblogger = WandbLogger(
         **cfg.logger,
         project=cfg.project_name,

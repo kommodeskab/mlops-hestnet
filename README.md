@@ -158,3 +158,15 @@ You can also commit without the pre-commit hooks (if they are annoying you and y
 ```bash
 git commit --no-verify
 ```
+
+## Running in cloud
+Project name is 'dtumlops-484208'. When added to the project, run.
+```bash
+gcloud auth login
+gcloud config set project dtumlops-484208
+```
+In order to run jobs
+```bash
+gcloud builds submit . --config=vertex_ai_train.yaml --project "dtumlops-484208"
+```
+To specify commands and/or docker images, edit config_vertex.yaml. Upload new images to europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/.

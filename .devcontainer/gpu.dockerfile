@@ -34,4 +34,4 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen
 
 # Set the default command
-ENTRYPOINT ["uv", "run", "main.py"]
+ENTRYPOINT ["uv", "run", "main.py", "+experiment=llm"]
