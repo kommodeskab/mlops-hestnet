@@ -106,6 +106,24 @@ class CausalLLM(BaseLightningModule):
         decoded = self.tokenizer.batch_decode(outputs.tolist())
         return decoded
 
+    def batch_generate(self, text: list[str], batch_size: int, **kwargs) -> list[str]:
+        """
+        Method for generating new text in batches. This is useful when generating text for a large number of prompts.
+
+        Args:
+            text (list[str]): List of input text strings to generate continuations for.
+            batch_size (int): The size of each batch for generation.
+            **kwargs: Additional generation parameters to override defaults.
+        Returns:
+            list[str]: The generated text continuations for each input prompt.
+        """
+        all_generations = []
+        for i in range(0, len(text), batch_size):
+            batch_text = text[i : i + batch_size]
+            generations = self.generate(batch_text, **kwargs)
+            all_generations.extend(generations)
+        return all_generations
+
 
 if __name__ == "__main__":
     from src.networks import CausalTransformer
@@ -120,5 +138,5 @@ if __name__ == "__main__":
     )
 
     text = ["Dette er en test sætning.", "Dette er en anden sætning."]
-    generations = llm.generate(text)
-    print(generations)
+    generations = llm.batch_generate(text, batch_size=2)
+    print(len(generations))

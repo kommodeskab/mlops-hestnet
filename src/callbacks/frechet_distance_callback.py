@@ -72,31 +72,8 @@ class FrechetDistanceMetric(Callback):
         mu_ref, sigma_ref = self.ref_stats
 
         with temporary_seed(42):
-            generations = pl_module.generate(self.prompts)
+            generations = pl_module.batch_generate(self.prompts, batch_size=32)
 
         mu_gen, sigma_gen = self._get_stats(generations)
         fcd = self.frechet_distance(mu_gen, sigma_gen, mu_ref, sigma_ref)
         logger.log_metrics({"FrechetDistance": fcd}, step=pl_module.global_step)
-
-
-if __name__ == "__main__":
-    generated = ["This is a generated sentence.", "Another generated sentence."]
-
-    class DummyDataset(BaseTextDataset):
-        def __init__(self):
-            super().__init__()
-
-        def __len__(self):
-            return 2
-
-        def __getitem__(self, idx):
-            return {"text": "This is a reference sentence."}
-
-    ref_dataset = DummyDataset()
-    print(len(ref_dataset))
-    metric = FrechetDistanceMetric(reference_dataset=ref_dataset)
-    metric._register_ref_stats()
-    mu_gen, sigma_gen = metric._get_stats(generated)
-    mu_ref, sigma_ref = metric.ref_stats
-    fcd = metric.frechet_distance(mu_gen, sigma_gen, mu_ref, sigma_ref)
-    print(f"Frechet Distance: {fcd}")
