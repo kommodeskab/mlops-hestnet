@@ -11,51 +11,31 @@ class BatchesPerSecondCallback(Callback):
     Logs both during training and validation phases.
     """
 
-    def __init__(self, smoothing_factor: float = 0.999):
+    def __init__(self):
         # initialize time trackers
-        self.train_time = None
-        self.val_time = None
-        self.train_bps_avg = None
-        self.val_bps_avg = None
-        self.smoothing_factor = smoothing_factor
-
-    def _calculate_bps_avg(self, previous_avg: float | None, new_bps: float) -> float:
-        if previous_avg is None:
-            return new_bps
-
-        return (1 - self.smoothing_factor) * new_bps + self.smoothing_factor * previous_avg
+        self.train_info = {"steps": 0, "avg": 0.0, "time": None, "log_key": "train_batches_per_second"}
+        self.val_info = {"steps": 0, "avg": 0.0, "time": None, "log_key": "val_batches_per_second"}
 
     def _track_bps(self, phase: Literal["train", "val"], pl_module: pl.LightningModule):
-        if phase == "train":
-            before = self.train_time
-            bps_avg = self.train_bps_avg
-            log_key = "train_batches_per_second"
-        else:
-            before = self.val_time
-            bps_avg = self.val_bps_avg
-            log_key = "val_batches_per_second"
+        info = self.train_info if phase == "train" else self.val_info
+
+        before = info["time"]
+        steps = info["steps"]
+        avg = info["avg"]
 
         now = time.time()
 
         if before is not None:
             elapsed = now - before
-            bps = 1.0 / elapsed
-            bps_avg = self._calculate_bps_avg(bps_avg, bps)
-            pl_module.log(log_key, bps_avg)
+            curr_bps = 1.0 / elapsed
+            updated_avg = (avg * steps + curr_bps) / (steps + 1)
+            pl_module.log(info["log_key"], curr_bps)
+            info["avg"] = updated_avg
+            info["steps"] += 1
 
-        if phase == "train":
-            self.train_time = now
-            self.val_time = None
-            self.train_bps_avg = bps_avg
-        else:
-            self.val_time = now
-            self.train_time = None
-            self.val_bps_avg = bps_avg
+        info["time"] = now
 
     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
-        if batch_idx == 0:
-            return  # skip first batch to avoid skewed timing
-
         self._track_bps("train", pl_module)
 
     def on_validation_batch_start(self, trainer, pl_module, batch, batch_idx, dataloader_idx=0):
