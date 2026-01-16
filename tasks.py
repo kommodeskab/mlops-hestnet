@@ -94,6 +94,7 @@ def build(c: Context):
         f.write("WANDB_API_KEY=...\n")
         f.write("ZOTERO_API_KEY=...\n")
         f.write("HF_TOKEN=...\n")
+        f.write("GEMINI_API_KEY=...\n")
     c.run("echo .env file created with WANDB_API_KEY, WANDB_ENTITY, ZOTERO_API_KEY and HF_TOKEN variables.")
 
 
