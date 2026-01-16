@@ -62,7 +62,8 @@ def my_app(cfg: DictConfig) -> None:
         id, ckpt_path = get_current_time(), None
 
     # needed in cloud
-    wandb.login(key=os.environ["WANDB_API_KEY"])
+    if not os.path.isfile(".env"):
+        wandb.login(key=os.environ["WANDB_API_KEY"])
 
     wandblogger = WandbLogger(
         **cfg.logger,
