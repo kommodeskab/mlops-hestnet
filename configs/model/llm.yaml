@@ -2,7 +2,7 @@ _target_: src.lightning_modules.CausalLLM
 
 network:
   _target_: src.networks.CausalTransformer
-  checkpoint: "distilbert/distilgpt2"
+  checkpoint: distilbert/distilgpt2
 
 tokenizer: ${tokenizer}
 
