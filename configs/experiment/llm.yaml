@@ -1,10 +1,10 @@
 # @package _global_
 
 defaults:
-  - override /trainer: gpu
+  - override /trainer: cpu
   - override /data: all_text
   - override /callbacks: llm_callbacks
-  - override /model: llm
+  - override /model: muon
   - override /logger: default
 
 project_name: 'Causal LLM Experiment'
@@ -21,4 +21,4 @@ data:
   batch_size: 1
 
 logger:
-  log_model: False
+  log_model: True
