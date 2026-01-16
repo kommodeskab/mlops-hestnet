@@ -5,5 +5,6 @@ trainset:
   datasets: # a list of datasets. why? so that we can combine multiple datasets if we want
     - _target_: src.datasets.DGigawordDataset
   tokenizer: ${tokenizer}
+  preprocess: True
 
 train_val_split: 0.95
