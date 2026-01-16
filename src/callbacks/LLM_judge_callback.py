@@ -89,3 +89,7 @@ class LLMJudgeCallback(Callback):
             data=[[p, g, score, evaluation] for p, g in zip(self.text, generations)],
             step=pl_module.global_step,
         )
+        pl_module.logger.log_metrics(
+            metrics={"score": score},
+            step=pl_module.global_step,
+        )
