@@ -1,0 +1,28 @@
+_target_: src.lightning_modules.CausalLLM
+
+network:
+  _target_: src.networks.CausalTransformer
+  checkpoint: "distilbert/distilgpt2"
+
+tokenizer: ${tokenizer}
+
+optimizer:
+  _target_: torch.optim.Muon
+  _partial_: True
+  lr: 1.e-4
+  weight_decay: 0.1
+  momentum: 0.95
+  nesterov: True
+  ns_steps: 5
+  eps: 1.e-7
+  adjust_lr_fn: match_rms_adamw
+
+lr_scheduler:
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ConstantLR
+    _partial_: True
+    factor: 1.0
+    total_iters: 1
+  monitor: "val_loss"
+  interval: "step"
+  frequency: 1
