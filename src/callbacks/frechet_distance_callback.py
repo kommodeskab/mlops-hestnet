@@ -22,7 +22,7 @@ class FrechetDistanceMetric(Callback):
         # the model then test if the generated text from these prompts are similar to the references
         self.prompts = [" ".join(ref.split()[:4]) for ref in self.references]
 
-        model_name = "Qwen/Qwen3-Embedding-0.6B"
+        model_name = "intfloat/multilingual-e5-small"
         self.model = SentenceTransformer(model_name)
         self.model.eval()
         num_params = sum(p.numel() for p in self.model.parameters())
@@ -57,7 +57,10 @@ class FrechetDistanceMetric(Callback):
         return (a + b - 2 * c).clamp(min=0.0).item()
 
     def on_train_start(self, trainer: pl.Trainer, pl_module: CausalLLM):
-        self.model.to(pl_module.device)
+        device = pl_module.device
+        # assert that the device is a gpu
+        assert device.type == "cuda", "FrechetDistanceMetric requires a GPU device"
+        self.model.to(device)
 
     def on_validation_end(self, trainer: pl.Trainer, pl_module: CausalLLM):
         logger = pl_module.logger
