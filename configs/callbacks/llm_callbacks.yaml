@@ -4,3 +4,4 @@ defaults:
   - modelcheckpoint
   - textcallback
   - loggrad
+  - LLMjudgecallback
