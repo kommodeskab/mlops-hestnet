@@ -7,7 +7,7 @@ defaults:
   - override /model: llm
   - override /logger: default
 
-project_name: 'callbacks experiment'
+project_name: 'Causal LLM Experiment'
 task_name: 'test'
 compile: False # we can only compile on GPU
 phase: 'train'
