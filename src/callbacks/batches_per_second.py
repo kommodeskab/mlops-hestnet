@@ -14,10 +14,11 @@ class BatchesPerSecondCallback(Callback):
     def __init__(self):
         # initialize time trackers
         self.info = {
-            "train": {"steps": 0, "summed_time": 0.0, "last_time": None},
-            "val": {"steps": 0, "summed_time": 0.0, "last_time": None},
-            "test": {"steps": 0, "summed_time": 0.0, "last_time": None},
+            "train": {"running_avg": None, "last_time": None},
+            "val": {"running_avg": None, "last_time": None},
+            "test": {"running_avg": None, "last_time": None},
         }
+        self.alpha = 0.01
 
     def _track_bps(self, phase: Literal["train", "val", "test"], pl_module: pl.LightningModule):
         info = self.info[phase]
@@ -30,21 +31,21 @@ class BatchesPerSecondCallback(Callback):
             return
 
         elapsed = now - before
-        info["summed_time"] += elapsed
-        info["steps"] += 1
+        bps = 1.0 / elapsed
+        running_avg = info["running_avg"]
+        updated_avg = bps if running_avg is None else (1 - self.alpha) * running_avg + self.alpha * bps
+        pl_module.log(f"{phase}_batches_per_second", updated_avg)
 
-        bps = info["steps"] / info["summed_time"]
-
-        pl_module.log(f"{phase}_batches_per_second", bps)
+        info["running_avg"] = updated_avg
         info["last_time"] = now
 
-    def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
         # this measures time between the start of batches, i.e. a full iteration
-        # could use almost any hook
+        # could use almost any hook instead, so this is arbitrary
         self._track_bps("train", pl_module)
 
-    def on_validation_batch_start(self, trainer, pl_module, batch, batch_idx, dataloader_idx=0):
+    def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx=0):
         self._track_bps("val", pl_module)
 
-    def on_test_batch_start(self, trainer, pl_module, batch, batch_idx, dataloader_idx=0):
+    def on_test_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx=0):
         self._track_bps("test", pl_module)
