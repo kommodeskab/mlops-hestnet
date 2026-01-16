@@ -6,4 +6,4 @@ frechet_distance_metric:
       _target_: src.datasets.ScandiRedditDataset
     indices:
       _target_: builtins.range
-      _args_: [10]
+      _args_: [200]
