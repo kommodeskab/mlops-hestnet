@@ -8,10 +8,24 @@ from torch.utils.data import ConcatDataset
 from datasets import Dataset as HFDataset
 from datasets import concatenate_datasets
 import os
-from tqdm import tqdm
+import shutil
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Tokenizer:
+    """
+    Wrapper around a HuggingFace tokenizer for encoding text into tokens.
+
+    Handles tokenization of strings or lists of strings with configurable
+    padding, truncation, and left-side padding for causal language models.
+
+    Args:
+        checkpoint (str): The HuggingFace checkpoint name or path for the tokenizer.
+        max_length (Optional[int]): Maximum sequence length for tokenization.
+    """
+
     def __init__(
         self,
         checkpoint: str,
@@ -23,6 +37,15 @@ class Tokenizer:
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def __call__(self, string: str | list[str]) -> TensorDict:
+        """
+        Tokenize input string(s) into token tensors.
+
+        Args:
+            string (str | list[str]): A single string or list of strings to tokenize.
+
+        Returns:
+            TensorDict: Dictionary containing 'input_ids' and 'attention_mask' as PyTorch tensors.
+        """
         return self.tokenizer(
             string,
             padding="max_length",
@@ -33,6 +56,15 @@ class Tokenizer:
         )
 
     def batch_decode(self, token_ids: list[list[int]]) -> list[str]:
+        """
+        Decode token IDs back into text strings.
+
+        Args:
+            token_ids (list[list[int]]): Batch of token ID sequences.
+
+        Returns:
+            list[str]: Decoded text strings with special tokens removed.
+        """
         return self.tokenizer.batch_decode(token_ids, skip_special_tokens=True)
 
 
@@ -62,28 +94,50 @@ def preprocess_dataset(
 
 
 class TokenizedDataset(BaseDataset):
+    """
+    Dataset that tokenizes text on-the-fly using a provided tokenizer.
+
+    Combines multiple text datasets and applies tokenization to each sample,
+    returning tokenized batches with input IDs and attention masks.
+
+    Args:
+        datasets (list[BaseTextDataset]): List of text datasets to combine.
+        tokenizer (Tokenizer): Tokenizer to use for tokenizing text samples.
+    """
+
     def __init__(
         self, datasets: list[BaseTextDataset], tokenizer: Tokenizer, preprocess: bool = False, force: bool = False
     ):
         super().__init__()
-        self.preprocess = preprocess
         self.datasets: list[BaseTextDataset | HFDataset] = []
         self.tokenizer = tokenizer
+        self.preprocess = preprocess
+        self.force = force
+
+        if force:
+            assert preprocess, "Force can only be used with preprocess=True"
 
         if not preprocess:
             self.dataset = ConcatDataset(datasets)
 
         else:
             # if we preprocess..
-            for ds in tqdm(datasets, desc="Preprocessing datasets.."):
+            for i, ds in enumerate(datasets):
+                logger.info(f"Preprocessing dataset {i+1}/{len(datasets)}: {ds.name}")
                 # loop over all datasets
                 # define where the preprocessed dataset should be stored
                 tokenname = tokenizer.name.replace("/", "_")
                 datasetname = ds.name.replace("/", "_")
                 preprocessed_path = f"{self.data_path}/preprocessed/{tokenname}/{datasetname}"
 
+                if force:
+                    # if force is True, we delete any existing preprocessed dataset
+                    if os.path.exists(preprocessed_path):
+                        shutil.rmtree(preprocessed_path)
+
                 # if the preprocessed dataset exists, load it
-                if os.path.exists(preprocessed_path):
+                # if force is True, we skip loading and reprocess anyway
+                if os.path.exists(preprocessed_path) and not self.force:
                     tokenized_ds = HFDataset.load_from_disk(preprocessed_path)
                 else:
                     # else preprocess and save it as a huggingface dataset

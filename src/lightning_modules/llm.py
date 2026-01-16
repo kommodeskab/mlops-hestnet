@@ -5,10 +5,20 @@ from torch import Tensor
 from src.datasets import Tokenizer
 import torch
 from src import LossOutput
+from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 
 
 class CausalLLM(BaseLightningModule):
-    """A dummy LightningModule for testing purposes."""
+    """
+    A dummy LightningModule for testing purposes.
+
+    Args:
+        network (CausalTransformer): The causal transformer network.
+        tokenizer (Tokenizer): The tokenizer for encoding and decoding text.
+        optimizer (OptimizerType, optional): The optimizer to use. Defaults to None.
+        lr_scheduler (LRSchedulerType, optional): The learning rate scheduler to use. Defaults to None.
+
+    """
 
     def __init__(
         self,
@@ -22,13 +32,35 @@ class CausalLLM(BaseLightningModule):
         self.tokenizer = tokenizer
         self.network = network
 
-    def forward(self, batch: TokenizedBatch):
+    def forward(self, batch: TokenizedBatch) -> CausalLMOutputWithCrossAttentions:
+        """
+        A simple forward pass. This forward uses the forward function of the `network` passed to the module.
+        The returned output of type `CausalLMOutputWithCrossAttentions` contains the loss and logits.
+        The loss is automatically computed using Huggingface logic.
+
+        Args:
+            batch (TokenizedBatch): The batch containing tokens and attention mask.
+
+        Returns:
+            CausalLMOutputWithCrossAttentions: The output from the network's forward pass.
+        """
         return self.network.forward(
             input_ids=batch["input_ids"],
             attention_mask=batch["attention_mask"],
         )
 
     def common_step(self, batch: TokenizedBatch, batch_idx: int) -> StepOutput:
+        """
+        The training/validation/test step. Given a batch, the model does a forward pass and returns a `StepOutput`
+        which contains the loss and model_output.
+
+        Args:
+            batch (TokenizedBatch): The batch containing tokens and attention mask.
+            batch_idx (int): The index of the batch. Not relevant for this task.
+
+        Returns:
+            StepOutput: The output containing loss and model output.
+        """
         output = self.forward(batch)
         loss = output.loss
         return StepOutput(
@@ -41,6 +73,24 @@ class CausalLLM(BaseLightningModule):
 
     @torch.no_grad()
     def generate(self, text: list[str], **kwargs) -> list[str]:
+        """
+        Method for generating new text. The method does:
+        1) Tokenization of input text.
+        2) Recursive token generation using next token prediction scheme. (uses build-in Huggingface logic)
+        3) Decoding of generated tokens back to text.
+
+        Example usage:
+        >>> generations = llm.generate(["The cat", "Once upon a time"], max_new_tokens=50)
+        >>> print(generations)
+        >>> # ['The cat sat on the mat.', 'Once upon a time in Hollywood.'] example output
+
+        Args:
+            text (list[str]): List of input text strings to generate continuations for. Also called 'prompts'.
+            **kwargs: Additional generation parameters to override defaults, e.g., max_new_tokens, temperature, top_k, top_p, etc.
+
+        Returns:
+            list[str]: The generated text continuations for each input prompt.
+        """
         generation_params = {
             "max_new_tokens": 100,
             "do_sample": True,

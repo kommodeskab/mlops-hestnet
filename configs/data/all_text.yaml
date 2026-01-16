@@ -4,7 +4,14 @@ trainset:
   _target_: src.datasets.TokenizedDataset
   datasets: # a list of datasets. why? so that we can combine multiple datasets if we want
     - _target_: src.datasets.DGigawordDataset
+    - _target_: src.datasets.NordjyllandNewsDataset
+    - _target_: src.datasets.RedditDaDataset
+    - _target_: src.datasets.ScandiRedditDataset
+
   tokenizer: ${tokenizer}
-  preprocess: False
+  preprocess: True
 
 train_val_split: 0.95
+shuffle: True
+drop_last: True
+num_workers: 16
