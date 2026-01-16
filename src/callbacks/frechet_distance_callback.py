@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class FrechetDistanceMetric(Callback):
+class FrechetDistanceCallback(Callback):
     def __init__(
         self,
         reference_dataset: BaseTextDataset,
@@ -59,7 +59,7 @@ class FrechetDistanceMetric(Callback):
     def on_train_start(self, trainer: pl.Trainer, pl_module: CausalLLM):
         device = pl_module.device
         # assert that the device is a gpu
-        assert device.type == "cuda", "FrechetDistanceMetric requires a GPU device"
+        assert device.type == "cuda", "FrechetDistanceCallback requires a GPU device"
         self.model.to(device)
 
     def on_validation_end(self, trainer: pl.Trainer, pl_module: CausalLLM):
@@ -76,4 +76,4 @@ class FrechetDistanceMetric(Callback):
 
         mu_gen, sigma_gen = self._get_stats(generations)
         fcd = self.frechet_distance(mu_gen, sigma_gen, mu_ref, sigma_ref)
-        logger.log_metrics({"FrechetDistance": fcd}, step=pl_module.global_step)
+        logger.log_metrics({"Frechet distance": fcd}, step=pl_module.global_step)
