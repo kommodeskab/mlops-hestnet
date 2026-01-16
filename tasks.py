@@ -94,6 +94,11 @@ def build(c: Context):
         f.write("WANDB_API_KEY=...\n")
         f.write("ZOTERO_API_KEY=...\n")
         f.write("HF_TOKEN=...\n")
+        f.write("GEMINI_API_KEY=...\n")
+        f.write("GOOGLE_API_KEY=...\n")
+        f.write("GOOGLE_CLOUD_PROJECT=...\n")
+        f.write("GOOGLE_CLOUD_LOCATION=global\n")
+        f.write("GOOGLE_GENAI_USE_VERTEXAI=True\n")
     c.run("echo .env file created with WANDB_API_KEY, WANDB_ENTITY, ZOTERO_API_KEY and HF_TOKEN variables.")
 
 
