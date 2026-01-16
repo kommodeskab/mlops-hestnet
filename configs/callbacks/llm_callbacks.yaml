@@ -5,3 +5,4 @@ defaults:
   - textcallback
   - loggrad
   - batchespersecond
+  - frechetdistance
