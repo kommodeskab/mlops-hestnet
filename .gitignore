@@ -4,6 +4,7 @@
 /playgrounds
 /data
 /wandb
+/config/my_experiment/*
 
 # ruff cache
 /.ruff_cache
