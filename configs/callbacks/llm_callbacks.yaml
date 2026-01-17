@@ -6,3 +6,4 @@ defaults:
   - loggrad
   - batchespersecond
   - frechetdistance
+  - LLMjudgecallback
