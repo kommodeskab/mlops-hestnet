@@ -4,4 +4,6 @@ defaults:
   - modelcheckpoint
   - textcallback
   - loggrad
+  - batchespersecond
+  - frechetdistance
   - LLMjudgecallback
