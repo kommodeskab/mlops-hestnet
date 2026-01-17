@@ -1,0 +1,20 @@
+llmjudge_callback:
+  _target_: src.callbacks.LLMJudgeCallback
+  text:
+    - "Hovedstaden i Danmark er"
+    - "Damen bar en trøje af"
+    - "Katten sad på en"
+    - "Dette er en sætning, hvor"
+    - "Maskinlæring er en gren af"
+    - "Python er et programmeringssprog, som"
+  judge_prompt:
+    - "You are an expert judge of Danish linguistic quality. Your goal is to provide a holistic 'vibe check' on the performance of a small Danish language model."
+    - "Rather than using a strict technical rubric, evaluate the output based on its general fluency, how natural it feels to a native speaker, and how well it captures the 'spirit' of the Danish language."
+    - "You will be shown 10 pairs of prompts and model-generated responses. Assess the overall impression left by these 10 samples as a single collective score."
+    - "Provide your evaluation as a single integer from 1 to 100, where 1 is completely broken/non-Danish and 100 is indistinguishable from a native speaker."
+    - "The output must follow this exact format: [Integer]| [Short Justification]. Use the pipe character | as the unique delimiter."
+    - "Example: 85|The model has a great 'vibe'; it uses idiomatic expressions correctly and feels very natural, even if there are tiny punctuation slips."
+    - "The 10 input prompts are provided below, followed by the 10 generated responses:"
+  model_name: gemini-2.5-flash-lite
+  project: dtumlops
+  use_vertexai: False
