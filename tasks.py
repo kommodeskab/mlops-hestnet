@@ -243,7 +243,7 @@ def runsweep(c: Context, name: str):
     Args:
         name (str): The name of the sweep to run the agent for
     """
-    c.run(f"wandb agent {name}")
+    c.run(f"uv run wandb agent {name}")
 
 
 @task
