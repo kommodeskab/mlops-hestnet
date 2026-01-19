@@ -1,11 +1,11 @@
 # Project description
-The purpose of this project is to train a transformer-based model for next-token prediction. We will be using a pre-trained model, possibly from Hugging Face, and fine-tuning it on the danish-foundation-models/danish-gigaword dataset using the classic unsupervised “masking” training paradigm. The Danish Gigaword dataset, developed by the IT University of Denmark, contains over a billion words. The dataset is open source and can be downloaded from Huggingface. We don’t think data version control is neccesary for our project, because we don’t expect the datasets to change. However, we might still try to implement it, for example, using DVC, just to get a feel of how it works in practice. 
+The purpose of this project is to train a transformer-based model for next-token prediction. We will be using a pre-trained model, possibly from Hugging Face, and fine-tuning it on the danish-foundation-models/danish-gigaword dataset using the classic unsupervised “masking” training paradigm. The Danish Gigaword dataset, developed by the IT University of Denmark, contains over a billion words. The dataset is open source and can be downloaded from Huggingface. We don’t think data version control is neccesary for our project, because we don’t expect the datasets to change. However, we might still try to implement it, for example, using DVC, just to get a feel of how it works in practice.
 
-Having trained our model, we can use the model to generate arbitrary Danish sentences starting from a given prompt. By prompt, we mean the start of some sentence which the model will then, hopefully, be able to finish. Given the time, we also plan to implement additional datasets to train on as much data as possible. 
+Having trained our model, we can use the model to generate arbitrary Danish sentences starting from a given prompt. By prompt, we mean the start of some sentence which the model will then, hopefully, be able to finish. Given the time, we also plan to implement additional datasets to train on as much data as possible.
 
-We will use a combination of Pytorch Lightning, Hydra, and Weights & Biases to train, configure, and monitor the performance of our models.  We plan to implement as many methods from the course as possible, since we already have a good grasp of how these three frameworks work. We will also try to set up an API for doing remote inference. This way, users can prompt our model with any sentence that they would like to get the model to finish. 
+We will use a combination of Pytorch Lightning, Hydra, and Weights & Biases to train, configure, and monitor the performance of our models.  We plan to implement as many methods from the course as possible, since we already have a good grasp of how these three frameworks work. We will also try to set up an API for doing remote inference. This way, users can prompt our model with any sentence that they would like to get the model to finish.
 
-We start by fine-tuning a lightweight transformer model in order to validate the data pipeline. We subsequently fine-tune Mistral-7B using LoRA to get optimal performance, and test our setup on a heavier transformer model. 
+We start by fine-tuning a lightweight transformer model in order to validate the data pipeline. We subsequently fine-tune Mistral-7B using LoRA to get optimal performance, and test our setup on a heavier transformer model.
 
 We aim to implement a complete continuous integration pipeline with automated testing and verification in a containerized environment to minimize deployment friction. The project will apply standard DevOPS workflows common in larger projects. New feature pull request are required to pass all automated tests and be reviewed by two team members before being merged with the main branch.
 
@@ -158,3 +158,23 @@ You can also commit without the pre-commit hooks (if they are annoying you and y
 ```bash
 git commit --no-verify
 ```
+
+## Sweeps
+Sweep configuration files are located in `configs/sweeps/`. To initialize a new sweep, use:
+```bash
+uvx invoke buildsweep --name <sweep-name>
+```
+Where `<sweep-name>` corresponds to the name of the YAML file in `configs/sweeps/` (without the `.yaml` extension). See `configs/sweeps/dummy.yaml` for an example of a sweep configuration file.
+This will output a sweep ID that can be used to start agents. To start an agent for the sweep, use:
+```bash
+wandb agent <sweep-id>
+```
+The sweep id also includes the entity and project name, for example:
+```bash
+wandb agent kommodeskab-danmarks-tekniske-universitet-dtu/sweeps/vbh4iehv
+```
+You can do this locally or on a remote machine. If you want to submit this sweep to a remote HPC cluster, you can for example use:
+```bash
+uvx invoke submit --command='wandb agent <sweep-id>' --job-name='wandb-sweep-<sweep-name>' --time='02:00' --gpus=1 --cpus=4 --mem=4
+```
+You can build private sweeps in the folder `configs/my_sweeps/`; these are ignored by git.

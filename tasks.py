@@ -84,7 +84,7 @@ def build(c: Context):
     c.run("uv sync")
 
     # also make required directories
-    c.run("mkdir -p logs hpc data")
+    c.run("mkdir -p logs data")
 
     # make .env file
     c.run("echo Creating .env file...")
@@ -117,19 +117,19 @@ def update(c: Context):
 @task
 def submit(
     c: Context,
-    experiment="",
+    command: str,
+    jobname: str,
     gpu="gpuv100",
     ngpus=1,
     ncores=4,
     mem=4,
     walltime="3:00",
-    jobname=None,
 ):
     """
     Submit a training job to HPC using bsub.
 
     Args:
-        experiment: Name of the experiment config (without .yaml)
+        command: The command to run in the job
         gpu: GPU type (gpuv100 or gpua100)
         ngpus: Number of GPUs to request
         ncores: Number of CPU cores
@@ -138,15 +138,10 @@ def submit(
         jobname: Custom job name (defaults to experiment name)
 
     Example:
-        invoke submit --experiment=template
-        invoke submit --experiment=myexp --gpu=gpua100 --walltime=24:00
+        >>> invoke submit --command="python main.py +experiment=dummy +trainer.max_steps=100" --gpu=gpua100 --walltime=24:00
     """
     import tempfile
     import os
-
-    # Use experiment name as2 job name if not provided
-    if jobname is None:
-        jobname = experiment
 
     # Create a temporary bash script with the specified parameters
     script_content = f"""#!/bin/sh
@@ -170,12 +165,11 @@ def submit(
 
     # walltime
     #BSUB -W {walltime}
-    #BSUB -o hpc/output_%J.out
-    #BSUB -e hpc/error_%J.err
+    #BSUB -o logs/hpc/output_%J.out
+    #BSUB -e logs/hpc/error_%J.err
 
-    module load python3/3.12.4
     source .venv/bin/activate
-    python main.py {experiment}
+    {command}
     """
 
     # Write to temporary file
@@ -186,11 +180,26 @@ def submit(
     try:
         # Submit the job
         c.run(f"bsub < {temp_script}")
-        print(f"\n✓ Job '{jobname}' submitted with experiment={experiment}")
+        print(f"\n✓ Job '{jobname}' submitted with command:\n  {command}")
         print(f"  GPU: {gpu}, Cores: {ncores}, Memory: {mem}G, Walltime: {walltime}")
     finally:
         # Clean up temporary file
         os.unlink(temp_script)
+
+
+@task
+def submit_experiment(
+    c: Context,
+    experiment: str,
+    jobname: str,
+    gpu="gpuv100",
+    ngpus=1,
+    ncores=4,
+    mem=4,
+    walltime="3:00",
+):
+    command = f"python main.py {experiment}"
+    submit(c, command, jobname, gpu, ngpus, ncores, mem, walltime)
 
 
 @task
@@ -203,6 +212,20 @@ def status(c: Context, user=None):
 
 
 @task
+def buildsweep(c: Context, name: str):
+    """
+    Initialize a Weights & Biases sweep from a YAML configuration file.
+
+    Args:
+        name (str): Name of the sweep configuration file (without .yaml extension)
+    """
+    # make sure "logs/wandb" exists
+    c.run("mkdir -p logs/wandb")
+    # initialize the sweep
+    c.run(f'WANDB_DIR="logs" wandb sweep configs/sweeps/{name}.yaml')
+
+
+@task
 def logs(c: Context, jobid=None, tail=50):
     """
     View logs from HPC jobs.
@@ -212,12 +235,12 @@ def logs(c: Context, jobid=None, tail=50):
         tail: Number of lines to show (default: 50)
     """
     if jobid:
-        c.run(f"tail -n {tail} hpc/output_{jobid}.out")
+        c.run(f"tail -n {tail} logs/hpc/output_{jobid}.out")
         print("\n--- Errors ---")
-        c.run(f"tail -n {tail} hpc/error_{jobid}.err", warn=True)
+        c.run(f"tail -n {tail} logs/hpc/error_{jobid}.err", warn=True)
     else:
         # Show most recent log files
         print("Most recent output:")
-        c.run(f"ls -t hpc/output_*.out | head -1 | xargs tail -n {tail}", warn=True)
+        c.run(f"ls -t logs/hpc/output_*.out | head -1 | xargs tail -n {tail}", warn=True)
         print("\nMost recent errors:")
-        c.run(f"ls -t hpc/error_*.err | head -1 | xargs tail -n {tail}", warn=True)
+        c.run(f"ls -t logs/hpc/error_*.err | head -1 | xargs tail -n {tail}", warn=True)
