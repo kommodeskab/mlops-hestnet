@@ -89,6 +89,7 @@ def build(c: Context):
     # make .env file
     c.run("echo Creating .env file...")
     with open(".env", "w") as f:
+        f.write("WANDB_DIR=logs\n")
         f.write("DATA_PATH=...\n")
         f.write("WANDB_ENTITY=...\n")
         f.write("WANDB_API_KEY=...\n")
@@ -99,7 +100,6 @@ def build(c: Context):
         f.write("GOOGLE_CLOUD_PROJECT=...\n")
         f.write("GOOGLE_CLOUD_LOCATION=global\n")
         f.write("GOOGLE_GENAI_USE_VERTEXAI=True\n")
-    c.run("echo .env file created with WANDB_API_KEY, WANDB_ENTITY, ZOTERO_API_KEY and HF_TOKEN variables.")
 
 
 @task
@@ -125,6 +125,10 @@ def submit(
     mem=4,
     walltime="3:00",
 ):
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     """
     Submit a training job to HPC using bsub.
 
@@ -213,6 +217,9 @@ def status(c: Context, user=None):
 
 @task
 def buildsweep(c: Context, name: str):
+    from dotenv import load_dotenv
+
+    load_dotenv()
     """
     Initialize a Weights & Biases sweep from a YAML configuration file.
 
@@ -222,7 +229,48 @@ def buildsweep(c: Context, name: str):
     # make sure "logs/wandb" exists
     c.run("mkdir -p logs/wandb")
     # initialize the sweep
-    c.run(f'WANDB_DIR="logs" wandb sweep configs/sweeps/{name}.yaml')
+    c.run(f"wandb sweep configs/sweeps/{name}.yaml")
+
+
+@task
+def runsweep(c: Context, name: str):
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    """
+    Run a Weights & Biases sweep agent for the specified sweep ID.
+
+    Args:
+        name (str): The name of the sweep to run the agent for
+    """
+    c.run(f"wandb agent {name}")
+
+
+@task
+def submitsweep(
+    c: Context,
+    name: str,
+    jobname: str,
+    gpu="gpuv100",
+    ngpus=1,
+    ncores=4,
+    mem=4,
+    walltime="3:00",
+):
+    """Submit a Weights & Biases sweep agent as an HPC job.
+
+    Args:
+        c (Context): _invoke_ context
+        name (str): The name of the sweep to run the agent for
+        jobname (str): The name of the HPC job
+        gpu (str, optional): GPU type (gpuv100 or gpua100). Defaults to "gpuv100".
+        ngpus (int, optional): Number of GPUs to request. Defaults to 1.
+        ncores (int, optional): Number of CPU cores. Defaults to 4.
+        mem (int, optional): Memory per core in GB. Defaults to 4.
+        walltime (str, optional): Wall time in HH:MM format. Defaults to "3:00".
+    """
+    command = f"wandb agent {name}"
+    submit(c, command, jobname, gpu, ngpus, ncores, mem, walltime)
 
 
 @task
