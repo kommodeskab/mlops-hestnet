@@ -177,4 +177,3 @@ You can do this locally or on a remote machine. If you want to submit this sweep
 ```bash
 uvx invoke submit --command='wandb agent <sweep-id>' --job-name='wandb-sweep-<sweep-name>' --time='02:00' --gpus=1 --cpus=4 --mem=4
 ```
-You can build private sweeps in the folder `configs/my_sweeps/`; these are ignored by git.

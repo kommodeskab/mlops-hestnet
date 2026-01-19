@@ -6,7 +6,6 @@
 /wandb
 /configs/experiment/test*
 /configs/my_experiment/*
-/configs/my_sweeps/*
 
 
 # ruff cache
