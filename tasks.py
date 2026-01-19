@@ -85,6 +85,8 @@ def build(c: Context):
 
     # also make required directories
     c.run("mkdir -p logs data")
+    c.run("mkdir -p logs/wandb")
+    c.run("mkdir -p logs/hpc")
 
     # make .env file
     c.run("echo Creating .env file...")
@@ -128,6 +130,8 @@ def submit(
     from dotenv import load_dotenv
 
     load_dotenv()
+
+    # make sure "logs/hpc" exists
 
     """
     Submit a training job to HPC using bsub.
@@ -202,7 +206,7 @@ def submit_experiment(
     mem=4,
     walltime="3:00",
 ):
-    command = f"python main.py {experiment}"
+    command = f"uv run python main.py {experiment}"
     submit(c, command, jobname, gpu, ngpus, ncores, mem, walltime)
 
 
@@ -226,10 +230,8 @@ def buildsweep(c: Context, name: str):
     Args:
         name (str): Name of the sweep configuration file (without .yaml extension)
     """
-    # make sure "logs/wandb" exists
-    c.run("mkdir -p logs/wandb")
     # initialize the sweep
-    c.run(f"wandb sweep configs/sweeps/{name}.yaml")
+    c.run(f"uv run wandb sweep configs/sweeps/{name}.yaml")
 
 
 @task
@@ -269,7 +271,7 @@ def submitsweep(
         mem (int, optional): Memory per core in GB. Defaults to 4.
         walltime (str, optional): Wall time in HH:MM format. Defaults to "3:00".
     """
-    command = f"wandb agent {name}"
+    command = f"uv run wandb agent {name}"
     submit(c, command, jobname, gpu, ngpus, ncores, mem, walltime)
 
 
