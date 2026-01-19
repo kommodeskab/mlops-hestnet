@@ -1,0 +1,39 @@
+# @package _global_
+
+defaults:
+  - override /trainer: gpu
+  - override /data: all_text
+  - override /callbacks: llm_callbacks
+  - override /model: llm
+  - override /logger: default
+
+project_name: 'andreas'
+task_name: 'test'
+compile: True # we can only compile on GPU
+phase: 'train'
+
+tokenizer:
+  _target_: src.datasets.Tokenizer
+  checkpoint: "distilbert/distilgpt2"
+  max_length: null
+
+data:
+  batch_size: 8 # batch size per GPU
+  num_workers: 8
+  shuffle: True
+  pin_memory: True
+  persistent_workers: True
+
+logger:
+  log_model: True
+
+trainer:
+  val_check_interval: 10000
+  reload_dataloaders_every_n_epochs: 0
+  limit_val_batches: 500
+  precision: 16   # 16-bit precision
+  max_steps: -1
+  log_every_n_steps: 100
+  devices: 2      # number of GPUs
+  strategy: 'ddp' # distributed data parallel
+  accelerator: 'gpu'
