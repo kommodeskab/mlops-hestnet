@@ -83,13 +83,13 @@ The API key can be found at: [wandb.ai/authorize](https://wandb.ai/authorize)
 ## Check formatting
 To check (and automatically fix some) code formatting, use:
 ```bash
-uvx invoke format
+invoke format
 ```
 
 ## Check typing
 To check typing using mypy, use:
 ```bash
-uvx invoke typing --filename <path-to-file-or-directory>
+invoke typing --filename <path-to-file-or-directory>
 ```
 You can omit the `--filename` argument to check the entire codebase.
 
@@ -162,7 +162,7 @@ git commit --no-verify
 ## Sweeps
 Sweep configuration files are located in `configs/sweeps/`. To initialize a new sweep, use:
 ```bash
-uvx invoke buildsweep --name <sweep-name>
+invoke buildsweep --name <sweep-name>
 ```
 Where `<sweep-name>` corresponds to the name of the YAML file in `configs/sweeps/` (without the `.yaml` extension). See `configs/sweeps/dummy.yaml` for an example of a sweep configuration file.
 This will output a sweep ID that can be used to start agents. To start an agent for the sweep, use:
@@ -175,5 +175,5 @@ wandb agent kommodeskab-danmarks-tekniske-universitet-dtu/sweeps/vbh4iehv
 ```
 You can do this locally or on a remote machine. If you want to submit this sweep to a remote HPC cluster, you can for example use:
 ```bash
-uvx invoke submit --command='wandb agent <sweep-id>' --job-name='wandb-sweep-<sweep-name>' --time='02:00' --gpus=1 --cpus=4 --mem=4
+invoke submit --command="wandb agent <sweep-id>" --job-name="sweep" --time="02:00" --gpus=1 --cpus=4 --mem=4
 ```
