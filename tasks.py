@@ -1,5 +1,11 @@
 from invoke import task, Context
 from typing import Optional
+import os
+
+
+os.makedirs("logs/wandb", exist_ok=True)
+os.makedirs("logs/hpc", exist_ok=True)
+os.makedirs("data", exist_ok=True)
 
 
 @task
@@ -82,16 +88,9 @@ def build(c: Context):
     """Build (sync) the environment from pyproject.toml."""
     c.run("echo Syncing the environment...")
     c.run("uv sync")
-
-    # also make required directories
-    c.run("mkdir -p logs data")
-    c.run("mkdir -p logs/wandb")
-    c.run("mkdir -p logs/hpc")
-
     # make .env file
     c.run("echo Creating .env file...")
     with open(".env", "w") as f:
-        f.write("WANDB_DIR=logs\n")
         f.write("DATA_PATH=...\n")
         f.write("WANDB_ENTITY=...\n")
         f.write("WANDB_API_KEY=...\n")
@@ -127,10 +126,6 @@ def submit(
     mem=4,
     walltime="3:00",
 ):
-    from dotenv import load_dotenv
-
-    load_dotenv()
-
     # make sure "logs/hpc" exists
 
     """
@@ -221,9 +216,6 @@ def status(c: Context, user=None):
 
 @task
 def buildsweep(c: Context, name: str):
-    from dotenv import load_dotenv
-
-    load_dotenv()
     """
     Initialize a Weights & Biases sweep from a YAML configuration file.
 
@@ -231,21 +223,18 @@ def buildsweep(c: Context, name: str):
         name (str): Name of the sweep configuration file (without .yaml extension)
     """
     # initialize the sweep
-    c.run(f"uv run wandb sweep configs/sweeps/{name}.yaml")
+    c.run(f"WANDB_DIR=logs uv run wandb sweep configs/sweeps/{name}.yaml")
 
 
 @task
 def runsweep(c: Context, name: str):
-    from dotenv import load_dotenv
-
-    load_dotenv()
     """
     Run a Weights & Biases sweep agent for the specified sweep ID.
 
     Args:
         name (str): The name of the sweep to run the agent for
     """
-    c.run(f"uv run wandb agent {name}")
+    c.run(f"WANDB_DIR=logs uv run wandb agent {name}")
 
 
 @task
@@ -271,7 +260,7 @@ def submitsweep(
         mem (int, optional): Memory per core in GB. Defaults to 4.
         walltime (str, optional): Wall time in HH:MM format. Defaults to "3:00".
     """
-    command = f"uv run wandb agent {name}"
+    command = f"WANDB_DIR=logs uv run wandb agent {name}"
     submit(c, command, jobname, gpu, ngpus, ncores, mem, walltime)
 
 

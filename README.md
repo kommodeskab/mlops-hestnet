@@ -167,13 +167,10 @@ invoke buildsweep --name <sweep-name>
 Where `<sweep-name>` corresponds to the name of the YAML file in `configs/sweeps/` (without the `.yaml` extension). See `configs/sweeps/dummy.yaml` for an example of a sweep configuration file.
 This will output a sweep ID that can be used to start agents. To start an agent for the sweep, use:
 ```bash
-wandb agent <sweep-id>
+invoke runsweep --name=<sweep-name>
 ```
-The sweep id also includes the entity and project name, for example:
+Where `<sweep-name>` is the full name of the sweep including entity and project, for example `kommodeskab-danmarks-tekniske-universitet-dtu/sweeps/642yizkv`.
+You can also submit a sweep to the HPC using:
 ```bash
-wandb agent kommodeskab-danmarks-tekniske-universitet-dtu/sweeps/vbh4iehv
-```
-You can do this locally or on a remote machine. If you want to submit this sweep to a remote HPC cluster, you can for example use:
-```bash
-invoke submit --command="wandb agent <sweep-id>" --job-name="sweep" --time="02:00" --gpus=1 --cpus=4 --mem=4
+uvx invoke submitsweep --name=<sweep-name> --jobname=<job-name> # include other options as needed
 ```
