@@ -22,6 +22,7 @@ command:
   # add any additional args here such as the experiment name
   # not too elegant but this is the best solution that I know
   - experiment=dummy
+  - +trainer.max_steps=1000
 
   # pass in the sweep parameters
   # this is where the magic happens
