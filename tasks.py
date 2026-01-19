@@ -221,3 +221,10 @@ def logs(c: Context, jobid=None, tail=50):
         c.run(f"ls -t hpc/output_*.out | head -1 | xargs tail -n {tail}", warn=True)
         print("\nMost recent errors:")
         c.run(f"ls -t hpc/error_*.err | head -1 | xargs tail -n {tail}", warn=True)
+
+
+@task
+def coverage(c: Context):
+    """Generate code coverage report."""
+    c.run("coverage run -m pytest")
+    c.run("coverage report -m")
