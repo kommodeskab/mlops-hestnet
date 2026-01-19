@@ -34,7 +34,7 @@ class BatchesPerSecondCallback(Callback):
         bps = 1.0 / elapsed
         running_avg = info["running_avg"]
         updated_avg = bps if running_avg is None else (1 - self.alpha) * running_avg + self.alpha * bps
-        pl_module.log(f"{phase}_batches_per_second", updated_avg)
+        pl_module.log(f"{phase}_batches_per_second", updated_avg, sync_dist=(phase != "train"))
 
         info["running_avg"] = updated_avg
         info["last_time"] = now

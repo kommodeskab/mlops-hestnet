@@ -92,4 +92,5 @@ class LLMJudgeCallback(Callback):
         pl_module.logger.log_metrics(
             metrics={"score": score},
             step=pl_module.global_step,
+            sync_dist=True,  # ensure logging works in multi-GPU setups
         )
