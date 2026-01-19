@@ -1,0 +1,9 @@
+frechet_distance_metric:
+  _target_: src.callbacks.FrechetDistanceCallback
+  reference_dataset:
+    _target_: torch.utils.data.Subset # make a subset of the dataset
+    dataset:
+      _target_: src.datasets.ScandiRedditDataset
+    indices:
+      _target_: builtins.range
+      _args_: [200]
