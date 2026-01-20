@@ -102,7 +102,9 @@ class CausalLLM(BaseLightningModule):
         inputs = self.tokenizer(text)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-        outputs: Tensor = self.network.model.generate(**inputs, **generation_params)
+        outputs: Tensor = self.network.model.generate(
+            **inputs, **generation_params, pad_token_id=self.tokenizer.tokenizer.pad_token_id
+        )
         decoded = self.tokenizer.batch_decode(outputs.tolist())
         return decoded
 

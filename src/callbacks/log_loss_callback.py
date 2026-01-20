@@ -18,7 +18,7 @@ class LogLossCallback(Callback):
     def log_outputs(self, pl_module: BaseLightningModule, outputs: StepOutput, prefix: str):
         outputs = {k: v for k, v in outputs["loss_output"].items() if isinstance(v, Tensor)}
         outputs = {f"{prefix}_{k}": v for k, v in outputs.items() if v.numel() == 1}
-        pl_module.log_dict(outputs, prog_bar=True)
+        pl_module.log_dict(outputs, prog_bar=True, sync_dist=(prefix != "train"))
 
     def on_train_batch_end(
         self,
