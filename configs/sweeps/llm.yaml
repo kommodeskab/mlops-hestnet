@@ -1,0 +1,30 @@
+name: llm_sweep
+project: sweeps
+method: bayes
+
+metric:
+  goal: minimize
+  name: val_loss
+
+parameters:
+  model.optimizer.lr:
+    min: 1e-5
+    max: 1e-3
+    distribution: log_uniform_values
+  model.optimizer.weight_decay:
+    min: 0.0
+    max: 0.1
+    distribution: uniform
+
+command:
+  - ${env}
+  - python
+  - main.py
+
+  - experiment=llm
+  - trainer.val_check_interval=2000
+  - +trainer.limit_val_batches=300
+  - +trainer.max_steps=10000
+  - callbacks=logloss # only use the logloss callback to speed up sweeps
+
+  - ${args_no_hyphens}
