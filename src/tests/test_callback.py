@@ -1,7 +1,7 @@
 from pathlib import Path
 import yaml
 import pytest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from src.utils import get_root
 from src.callbacks.LLM_judge_callback import LLMJudgeCallback
 
@@ -42,3 +42,85 @@ class TestLLMJudgeCallback:
             assert callback.seed == 42
             mock_dotenv.assert_called_once()
             mock_client.assert_called_once()
+
+    def test_format_prompt(self, callback_params):
+        """Test successful prompt formatting"""
+        with (
+            patch("src.callbacks.LLM_judge_callback.genai.Client"),
+            patch("src.callbacks.LLM_judge_callback.load_dotenv"),
+        ):
+            callback = LLMJudgeCallback(**callback_params)
+            generations = ["Jeg bor i et kommodeskab", "København"]
+
+            prompt = callback._format_prompt(generations)
+
+            assert f"Prompt 1: {callback_params["text"][0]}" in prompt
+            assert f"Response 1: {generations[0]}" in prompt
+            assert f"Prompt 2: {callback_params["text"][1]}" in prompt
+            assert f"Response 2: {generations[1]}" in prompt
+
+    def test_parse_response_valid(self, callback_params):
+        """Test parsing valid LLM response"""
+        with (
+            patch("src.callbacks.LLM_judge_callback.genai.Client"),
+            patch("src.callbacks.LLM_judge_callback.load_dotenv"),
+        ):
+            callback = LLMJudgeCallback(**callback_params)
+
+            score, evaluation = callback._parse_response("85 | Good response, clear and concise")
+
+            assert score == "85"
+            assert evaluation == "Good response, clear and concise"
+
+    def test_init_client_failure(self, callback_params):
+        """Test initialization when client fails"""
+        with (
+            patch("src.callbacks.LLM_judge_callback.genai.Client") as mock_client,
+            patch("src.callbacks.LLM_judge_callback.load_dotenv"),
+        ):
+            mock_client.side_effect = Exception("API error")
+
+            callback = LLMJudgeCallback(**callback_params)
+            assert callback.client is None
+
+    def test_on_validation_end_no_client(self, callback_params):
+        """Test validation end when client is not initialized"""
+        with (
+            patch("src.callbacks.LLM_judge_callback.genai.Client") as mock_client,
+            patch("src.callbacks.LLM_judge_callback.load_dotenv"),
+        ):
+            mock_client.side_effect = Exception("API error")
+            callback = LLMJudgeCallback(**callback_params)
+
+            mock_trainer = Mock()
+            mock_module = Mock()
+
+            # Should not raise exception
+            callback.on_validation_end(mock_trainer, mock_module)
+            mock_module.generate.assert_not_called()
+
+    def test_on_validation_end_generation_error(self, callback_params):
+        """Test validation end when generation fails"""
+        with (
+            patch("src.callbacks.LLM_judge_callback.genai.Client") as mock_client,
+            patch("src.callbacks.LLM_judge_callback.load_dotenv"),
+        ):
+            mock_client_instance = Mock()
+            mock_client.return_value = mock_client_instance
+            callback = LLMJudgeCallback(**callback_params)
+
+            mock_trainer = Mock()
+            mock_module = Mock()
+            mock_module.generate.side_effect = Exception("Generation failed")
+
+            # Should handle error without throwing an exception
+            callback.on_validation_end(mock_trainer, mock_module)
+
+    # # TODO GITHUB BOT WITH GCLOUD API KEY
+    # def test_instantiation(callback_params):
+
+    #     callback = LLMJudgeCallback(**callback_params)
+    #     assert callback.text == callback_params["text"]
+    #     assert callback.judge_prompt == callback_params["judge_prompt"]
+    #     assert callback.model_name == "gemini-2.5-flash"
+    #     assert callback.seed == 42
