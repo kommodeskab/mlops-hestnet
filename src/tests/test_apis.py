@@ -1,8 +1,9 @@
-import os
-os.chdir(os.path.join("src", "app"))
-
 from fastapi.testclient import TestClient
 from src.app.api import app
+import os
+
+os.chdir(os.path.join("src", "app"))
+
 client = TestClient(app)
 
 def test_read_root():
