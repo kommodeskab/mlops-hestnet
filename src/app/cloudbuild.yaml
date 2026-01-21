@@ -7,7 +7,7 @@ steps:
     'build',
     '.',
     '-t',
-    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging',
+    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt',
     '-f',
     'api.dockerfile'
   ]
@@ -15,7 +15,7 @@ steps:
   id: 'Push container image'
   args: [
     'push',
-    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging'
+    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt'
   ]
 options:
   logging: CLOUD_LOGGING_ONLY

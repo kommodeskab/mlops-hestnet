@@ -50,13 +50,11 @@ async def submit(request: Request, prompt: str = Form(...),
     else:
         model_used = model
     inputs = tokenizer(prompt, return_tensors="pt")
-    with torch.no_grad():
+    with torch.inference_mode():
         outputs = model_used.generate(
             **inputs,
-            max_new_tokens=50,
-            do_sample=True,
-            top_k=50,
-            top_p=0.95)
+            max_new_tokens=30,
+            do_sample=False)
 
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
