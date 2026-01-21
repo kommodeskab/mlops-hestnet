@@ -17,4 +17,4 @@ llmjudge_callback:
     - "The 10 input prompts are provided below, followed by the 10 generated responses:"
   model_name: gemini-2.5-flash-lite
   project: dtumlops
-  use_vertexai: False
+  use_vertexai: True

@@ -6,6 +6,8 @@ from src.datasets.tokenization import Tokenizer
 from src.callbacks.utils import get_batch_from_dataset
 from src.networks import CausalTransformer
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.parametrize("checkpoint", ["distilbert/distilgpt2"])
 @pytest.mark.parametrize("batch_size", [1, 2])  # 2 is max

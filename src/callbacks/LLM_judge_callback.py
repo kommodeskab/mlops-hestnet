@@ -17,8 +17,7 @@ class LLMJudgeCallback(Callback):
         text: List of prompt texts to generate from.
         judge_prompt: List of strings forming the judge instruction prompt.
         model_name: Gemini model to use for evaluation. Defaults to "gemini-2.0-flash-exp".
-        project: GCP project name. Defaults to "dtumlops".
-        use_vertexai: Whether to use Vertex AI. Defaults to False.
+        use_vertexai: Whether to use Vertex AI. Defaults to True.
         seed: Random seed for generation. Defaults to 42.
     """
 
@@ -27,8 +26,7 @@ class LLMJudgeCallback(Callback):
         text: list[str],
         judge_prompt: list[str],
         model_name: str = "gemini-2.5-flash",
-        project: str = "dtumlops",
-        use_vertexai: bool = False,
+        use_vertexai: bool = True,
         seed: int = 42,
     ):
         super().__init__()
@@ -41,7 +39,7 @@ class LLMJudgeCallback(Callback):
         # Load environment variables and initialize client
         load_dotenv()
         try:
-            self.client = genai.Client(vertexai=use_vertexai, project=project)
+            self.client = genai.Client(vertexai=use_vertexai)
             logger.info(f"LLMJudgeCallback initialized with model: {model_name}")
         except Exception as e:
             logger.error(f"Failed to initialize Gemini client: {e}")

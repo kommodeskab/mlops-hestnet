@@ -68,3 +68,10 @@ omit = [          # Don't measure coverage for these patterns:
     "*/.venv/*",           # Virtual environment
     "*/_remote_module_non_scriptable.py",  # PyTorch temp module
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: unit tests that use mocks (deselect with '-m \"not unit\"')",
+    "integration: integration tests that use real API calls. Integration tests are only run if os.getenv('RUN_INTEGRATION_TESTS') is set to true.",
+]
+addopts = "-m 'not integration'"
