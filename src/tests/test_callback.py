@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import yaml
 import pytest
@@ -8,6 +9,8 @@ from src.callbacks.LLM_judge_callback import LLMJudgeCallback
 
 class TestLLMJudgeCallback:
     """Tests for LLMJudgeCallback"""
+
+    pytestmark = pytest.mark.unit
 
     @pytest.fixture
     def config(self):
@@ -118,6 +121,9 @@ class TestLLMJudgeCallback:
 
     # Real client with real API calls
     # TODO GITHUB BOT WITH GCLOUD API KEY
+    @pytest.mark.integration
+    @pytest.mark.unit(False)
+    @pytest.mark.skipif(not os.getenv("RUN_INTEGRATION_TESTS"), reason="Integration tests disabled")
     def test_init(self, callback_params):
         callback = LLMJudgeCallback(**callback_params)
         assert callback.text == callback_params["text"]
@@ -126,6 +132,9 @@ class TestLLMJudgeCallback:
         assert callback.seed == 42
         assert callback.client is not None
 
+    @pytest.mark.integration
+    @pytest.mark.unit(False)
+    @pytest.mark.skipif(not os.getenv("RUN_INTEGRATION_TESTS"), reason="Integration tests disabled")
     def test_callback(self, callback_params):
         callback = LLMJudgeCallback(**callback_params)
         assert callback.client is not None

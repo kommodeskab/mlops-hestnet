@@ -6,6 +6,8 @@ from src import TextSample
 from src.datasets import DummyDataset, DGigawordDataset, Tokenizer, TokenizedDataset
 from src.data_modules import BaseDM
 
+pytestmark = pytest.mark.unit
+
 
 # here is an example test function
 def test_dummy_dataset():
