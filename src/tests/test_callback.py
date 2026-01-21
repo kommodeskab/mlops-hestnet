@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import yaml
 import pytest
@@ -26,8 +25,6 @@ class TestLLMJudgeCallback:
             "text": config["text"],
             "judge_prompt": config["judge_prompt"],
             "model_name": "gemini-2.5-flash",
-            "project": "test-project",
-            "use_vertexai": False,
             "seed": 42,
         }
 
@@ -123,7 +120,6 @@ class TestLLMJudgeCallback:
     # TODO GITHUB BOT WITH GCLOUD API KEY
     @pytest.mark.integration
     @pytest.mark.unit(False)
-    @pytest.mark.skipif(not os.getenv("RUN_INTEGRATION_TESTS"), reason="Integration tests disabled")
     def test_init(self, callback_params):
         callback = LLMJudgeCallback(**callback_params)
         assert callback.text == callback_params["text"]
@@ -134,7 +130,6 @@ class TestLLMJudgeCallback:
 
     @pytest.mark.integration
     @pytest.mark.unit(False)
-    @pytest.mark.skipif(not os.getenv("RUN_INTEGRATION_TESTS"), reason="Integration tests disabled")
     def test_callback(self, callback_params):
         callback = LLMJudgeCallback(**callback_params)
         assert callback.client is not None
