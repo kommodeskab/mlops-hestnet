@@ -42,7 +42,3 @@ class TestLLMJudgeCallback:
             assert callback.seed == 42
             mock_dotenv.assert_called_once()
             mock_client.assert_called_once()
-
-    # TODO GITHUB BOT WITH GCLOUD API KEY
-    # def test_instantiation(callback_params):
-    #     LLMJudgeCallback(**callback_params)
