@@ -123,7 +123,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+group 62
 
 ### Question 2
 > **Enter the study number for each member in the group**
@@ -134,7 +134,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 2 fill here ---
+s214657, s214615, s214653, s214630
 
 ### Question 3
 > **Did you end up using any open-source frameworks/packages not covered in the course during your project? If so**
@@ -148,7 +148,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+We used HuggingFace to 1) implement HuggingFace transformer architectures and 2) to implement large text datasets that are publicly available on Huggingface. This meant that we didn't have to implement our own tokenizers, transformers, loss functions, and so on, and instead fully focus on the MLOps part of the project. Huggingface also hosts a large number of public datasets, including danish text datasets that was needed for our project. Huggingface also manages data version control of these datasets. This meant that we didn't have to store the data ourselves. 
 
 ## Coding environment
 
@@ -168,7 +168,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+A new member should start out by cloning our github repo "https://github.com/kommodeskab/mlops-hestnet" using git. Then he or she should create a project specific virtual environment by running `uvx invoke build` in the project root directory in a terminal with uv installed. This command installs the necessary dependencies with the correct versions from the pyproject.toml file automatically using u, and it also creates the necessary files and folders that are not tracked by git, such as the `logs` and `data` folders and the .env file. We used invoke extensively in this project. To begin working in the newly created environment, one can activate it by typing "source .venv/bin/activate" and it should be ready. Alternatively, one could use `uv run` before any commands that required a package from the environment. The last thing is to create a development branch so we ensure main is always stable and is only modified through pull requests approved by other team members. Creation of a branch is easy with "git checkout -b <branch-name>". Branch names follow the format "dev/<feature\_name>" to keep the project organised. 
 
 ### Question 5
 
@@ -184,7 +184,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 5 fill here ---
+We decided to use our own template that already had a lot of functionality implemented, including Pytorch Lightning, WandB, and Hydra. We decided to use this template since we already had experience with these frameworks in this template; therefore we could focus on learning methods (instead of re-implementing things we already knew). Furthermore we expanded the template significantly in the first week of the course by incorporating tools taught in the course. From the "https://github.com/kommodeskab/Template", which is more or less similar to the cookiecutter template in structure, we have filled out the following folders and files: .devcontainer/Dockerfile, .devcontainer/devcontainer.json, .github/workflows, the configs/ folder containing callbacks, data, experiment, logger, model, trainer config files. We have also filled out the src/ folder with the files callbacks, data\_modules, datasets, lightning\_modules, losses, networks, tests. Furthermore we of course used .env, .gitignore, .pre-commit-config.yaml, pyproject.toml, tasks.py, uv.lock, README.md and most importantly main.py. We have created extra files for flexibility where suitable, such as configs/trainer/cpu.yaml, configs/trainer/gpu.yaml, configs/trainer/multi\_gpu.yaml for different training situations.
 
 ### Question 6
 
@@ -199,7 +199,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 6 fill here ---
+We used ruff to enforce code quality and formatting rules in the project. Ruff was configured to handle both linting and formatting, ensuring a consistent code style and catching common issues such as unused imports and inconsisent formatting. This helped keep the codebase clean and readable. For typing, we used Python type hints throughout the code. We used `mypy` to test the quality of our typehints. We made a simple task that automatically checked the typehinting in the whole codebase (`invoke typing`) or in a specific file (`invoke typing --filename <path-to-file-or-directory>`). The explicit input and output types improved code clarity, made it easier to understand how different components interacted, and helped catch errors early. This was especially useful for refactoring or extending the code. For documentation, we relied on docstrings following standard Python conventions. These described the purpose of modules, functions, and key parameters, making the code easier to understand for collaborators and for future maintenance. In larger projects, these concepts matter because code is often "read more than it is written" - Guido himself. Consistent formatting, clear typing, and good documentation reduce misunderstandings, eases onboarding of new contributors, and lower the risk of subtle bugs as the project grows. 
 
 ## Version control
 
@@ -218,7 +218,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 7 fill here ---
+In total we have implemented 24 test functions, and made extensive use of pytest's fixture, parametrize and mock features. Since testing in ML pipelines differs from traditional software applications, we have primarily focused our test coverage around data handling, network architecture and training callbacks. 22 tests are marked as unit tests and 2 tests are marked as integration tests. The latter are only run conditionally, as they make API calls to google cloud. The conftest.py file implements a small synthetic dataset that patches the hugginface load\_dataset() call at test time to keep the test footprint small. 
 
 ### Question 8
 
@@ -233,7 +233,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 8 fill here ---
+The total code coverage of our tests is 54\% with 593 so-called statements whereof 272 were NOT being tested. We made a task for quickly outputting the code coverage in the terminal: `invoke coverage`. Ideally, we would of course like to have 100\% code coverage, especially in a more professional project, but this would also necessitate more monkey-patching for API calls, large models and datasets, and would not necessarily test the parts of the code we are concerned about, such as can it function in an production environment and will it go OOM?  
+It is also important to remember that even with 100\% code coverage, code is not immune to bugs. It depends on the quality of tests, whether edge cases are checked and whether API's are interfaced with correctly. It is possible to write a test that covers a large portion of the code but doesn't actually make the right assumptions about how the code should be tested. We found it very difficult to write tests that could successfully debug a full training script. We worked hard to use mock functions to inspect values logged to Wandb and conditionally test real API calls to Gemini.
 
 ### Question 9
 
@@ -248,7 +249,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 9 fill here ---
+We made use of both branches and pull requests (PRs) in our project. In our group, each feature or subproject had its own dedicated branch with the naming convention dev/<feature\_name>, which allowed us to develop functionality independently without affecting the main branch. Creating feature-specific branches also made it easier to track changes, review commit history, and remove branches once a feature was completed and merged. We tried to keep PRs limited in scope, splitting development into multiple smaller, reviewable PR's. The main branch was protected from direct pushes, and we only used pull requests. We implemented a requirement of at least one approval per pull request, meaning that another team member had to review the code before it could be merged. This review process allowed us to catch bugs, discuss implementation choices, and ensure that the code followed agreed-upon standards. Quite a few were denied. We also used Github actions to require that all tests were passed before a merge was allowed. Overall, using branches and PRs improved collaboration, reduced merge conflicts, and increased code quality, which becomes especially important as a project grows in size and complexity. 
 
 ### Question 10
 
@@ -263,7 +264,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+We did not make use of DVC in our project, mainly because we were working with static text datasets obtained from Hugging Face. The data did not change over time, and there was no data collection or preprocessing pipeline that would introduce multiple versions of the dataset. As a result, traditional version control for code was sufficient for our use case, and adding DVC would have introduced unnecessary complexity without clear benefits. However, DVC would be highly beneficial in a project where the data evolves over time or is generated dynamically. For example, in a deployed machine learning system that continuously receives new data, version control of datasets would be crucial for tracking data drift and ensuring reproducibility. With DVC, it would be possible to link specific model versions to the exact data used during training, making debugging and rollback much easier. This is especially important in production settings, where changes in data distribution can significantly impact model performance and reliability.
 
 ### Question 11
 
@@ -280,7 +281,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 11 fill here ---
+We use Github actions for 1) weekly dependabot alerts, 2) code formatting, and 3) running tests. Here is a link to our tests workflow: https://github.com/kommodeskab/mlops-hestnet/blob/main/.github/workflows/tests.yaml. In our workflows, we made sure that the tests could run on both the latest Windows, latest Ubuntu and latest mac-os version. We could choose to test various different Python versions, but we only tested Python version 3.12. In the workflows, we used caching. This means that the workflows would be executed faster since the Github agent does not need to install all the required packages each time a workflow is triggered. The test work flow also generates a coverage report of the tests run. The use of workflows meant that all PR's were automatically linted correctly, and we could also see whether the PR's passed the tests before merging into main. Initially we had issues with running our tests through github actions as the VM would run out of diskspace in the coverage step because of the downloaded hugging face datasets. We were able to solve this by using  using pytest monkey patching to patch the load\_dataset() function in the test files to replace the dataset with a small synthetic one at test time. We later applied the same testing principle to tests including API calls to gemini in the LLM judge callback. Ideally, we would like to test this functionality, as our code relies on these api calls, but this is a reasonable trade-off, and tests including API calls can be run using pytest -m "integration". 
 
 ## Running code and tracking experiments
 
@@ -299,7 +300,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 12 fill here ---
+We configured experiments using YAML-based configuration files in Hydra, which allowed us to separate experiment settings from the training code. The configuration defined defaults for components such as the model, data, trainer, callbacks, and logger. Experiment were run by executing the training script with the config file, e.g. `python main.py experiment=my\_experiment`, and overridden when needed using command-line arguments. The use of hydra also made the experiment files modular allowing for easy substitution. We could also overwrite parameters from the commandline: `python main.py experiment=my\_experiment data.batch\_size=32 trainer=gpu`.
 
 ### Question 13
 
@@ -314,7 +315,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 13 fill here ---
+We ensured reproducibility of our experiments by combining configuration files, experiment tracking, and automated workflows. All experiments were configured using YAML-based config files in Hydra. Whenever an experiment was run, the exact configuration used was logged and stored to Wandb, ensuring that no information about the experimental setup was lost. We used Weights \& Biases (wandb) to track experiments, including metrics, logs, configurations, and model outputs. WandB also tracked exactly which git commit was used to produce the run. This allowed us to compare runs, inspect training behavior, and trace results back to specific configurations and code versions. Each run was automatically associated with a unique identifier, making it easy to revisit or reproduce later. In summary, version-controlled code, logged configurations, and tracked experiment metadata, reproducing an experiment simply required checking out the relevant Git commit and rerunning the training with the same config file.
 
 ### Question 14
 
@@ -331,7 +332,11 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 14 fill here ---
+We used Weights \& Biases (W\&B) as our experiment tracking platform, as it integrates seamlessly with PyTorch Lightning and provides real-time dashboards for monitoring training behavior. Figure 1 shows several runs where we track both optimization- and system-level metrics to better understand model performance and training dynamics. The metrics training loss and validation loss are central in assessing whether the model is learning meaningful representations, has converged, or is beginning to overfit. In our experiments, both losses decrease steadily, indicating stable learning and no severe overfitting. Validation loss is particularly important, as it reflects generalization to unseen data. We also log the learning rate: A stable learning rate combined with smoothly decreasing loss suggests that optimization is proceeding correctly. In addition to loss-based metrics, we track the gradient norm, which is important for diagnosing training stability. Exploding gradients would indicate instability, while vanishing gradients could slow learning; neither behavior is observed in our runs. We also log training and validation batches per second, which provide insight into computational efficiency and hardware utilization, allowing us to compare performance across different setups. In Figure 2, we track epoch progression relative to the global training step to contextualize learning dynamics across runs of different lengths. More importantly, we log the Fréchet distance, which serves as a higher-level evaluation metric for our masked token prediction setting. Unlike loss values, it captures how closely generated outputs match the distribution of real data in a learned feature space. We also intermittently log LLM-judge evaluations of the model's generated output using gemini as a metric for the model's generation quality and for qualitative evaluation of the output.
+Overall, combining loss, gradient, throughput, and distribution-based metrics provides a comprehensive view of convergence, stability, and output quality. We also conducted hyperparameter sweeps using WandB. 
+![std_img](figures/std_img.png)
+![alt text](frechet.png)
+![alt text](ModelGenerationAndEvalutionCallbackBlack.png)
 
 ### Question 15
 
@@ -346,7 +351,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 15 fill here ---
+For our project we developed three docker images: one for training on a cpu, one for training with a gpu and one minimal docker image for running inference on a gcloud virtual machine for the API. For GPU training we used official pytorch docker images, as there were significantly more lightweight than NGC images.
+Building docker images and running docker containers is a simple matter of interfacing with invoke commands. Running `invoke image` builds the image and the option --gpu checks that the NVIDIA docker runtime is installed and builds the docker image with gpu support. `invoke dockermain` runs main.py inside the docker container with the specified command line arguments and `invoke stopcontainers` and `invoke cleandocker` adds some docker housekeeping.
+The gpu docker file can be found here: https://github.com/kommodeskab/mlops-hestnet/blob/main/.devcontainer/gpu.dockerfile.
 
 ### Question 16
 
@@ -361,7 +368,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 16 fill here ---
+When encountering bugs during experimentation, our debugging approach varied between group members. Locally, we primarily relied on traditional debugging methods such as print statements, logging intermediate values, inspecting tensors in the terminal, and using Python’s built-in debugger to step through problematic code. This was especially useful for identifying shape mismatches, incorrect masking logic, and data loading issues. In addition to local debugging, we used GitHub workflows to automatically test code on pull requests. For performance-related issues, we made use of Weights \& Biases profiling outputs, which provided insights into runtime behavior and helped identify potential bottlenecks in data loading and training loops. We performed limited profiling runs to understand the main performance constraints but did not conduct extensive low-level optimization. We conducted memory profiling of preprocessing the dataset using psutil because we encountered OOM issues, but we did not merge it into the main branch as it did not lead to performance improvements compared to tokenizing on the fly (see dev/dataset\_downloader branch). 
+While the code is functional and reasonably efficient for our use case, we do not consider it “perfect” and acknowledge that further profiling and optimization could improve performance, especially for larger-scale models/experiments or longer training runs. 
 
 ## Working in the cloud
 
@@ -378,7 +386,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 17 fill here ---
+We used the following services; Cloud Build, Artifact Registry, Vertex AI, Gemini API, Secret Manager, Cloud Run, and Cloud Monitoring. We used Cloud Build and Artifact Registry to build and store our docker images that we used both for training (through Vertex AI) and to run our API. Through Vertex AI we gained access to the Nvidia Tesla T4 accelerator, which sped up training considerably. We also used the Secret Manager to safely inject a WandB API key at runtime. However, since we had more compute available through the HPC at DTU, we chose to do the training there in the end. When we eventually deployed our API using FastAPI we used Cloud Run to do so, and set up alerts through Cloud Monitoring to look for keywords in the log (set up by us) and alert us through email when issues arise. We used Gemini API and later Vertex AI in a pytorch lightning callback to intermittently evaluate the model's generated output.
 
 ### Question 18
 
@@ -393,7 +401,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 18 fill here ---
+Our use of the cloud relied on Compute Engine–backed services rather than directly managing virtual machines ourselves. When using Cloud Run to deploy our API our application is run in a containerized service. This service abstracts away the direct management of the VM. Similarly we also used Vertex AI to train our model - at least as a proof of concept, though we ended up using the DTU HPC for most of our training because of various reasons. Vertex AI also run on Google-managed Compute Engine resources. All in all, while our solution made indirect use of Compute Engine as the underlying backbone, we did not directly manage VM instances through the Compute Engine service.
 
 ### Question 19
 
@@ -402,7 +410,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 19 fill here ---
+In our project we didn't use a GCP bucket. Had we decided to continue training our model using Vertex AI saving the data to a GCP bucket would probably have been a good idea since the VM has no permanent storage, but could draw the data (with the right kind of server access granted) from the bucket. But since we ended up training mainly on DTUs HPC this was not necessary.  
+![Bucket](figures/bucket.png)
 
 ### Question 20
 
@@ -411,7 +420,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 20 fill here ---
+Below we show the overall folder for our docker images, and the different versions of our GPU docker image, used for training the model. Notice their size - 11gb - which is a lot larger than the docker images used for the API, in which we only used a CPU-version of PyTorch, and therefore was only around 1gb.
+![artifactregistry](figures/artifactregistry.PNG)
+![gpuimages](figures/gpuimages.PNG)
 
 ### Question 21
 
@@ -420,7 +431,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 21 fill here ---
+Below we have an image of our Cloud Build history. The top three builds were all for the API, taking around 5 minutes. The GPU images for Vertex AI to longer.
+![cloudbuildhistory](figures/cloudbuildhistory.PNG)
 
 ### Question 22
 
@@ -435,7 +447,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 22 fill here ---
+As mentioned above we initially took advantage of the Vertex AI service to train our model. We constructed a dockerfile specifying a light-weight Alpine OS, with a GPU enabling PyTorch package. Through the Secret Manager we were able to safely get the container access to our WandB account, making monitoring the training process a breeze. Having built that in the cloud through the Artifact Registry, we requested access to a Nvidia Tesla T4 GPU, and was granted it. We were then able to train our model in the cloud, and successfully did so.
 
 ## Deployment
 
@@ -452,7 +464,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 23 fill here ---
+We did write an API for our model. We used FastAPI to setup the app and handle the requests, and then used jinja2 to set up a minimalistic front-end through which users can interact with the model. We used a lifespan function in order to handle the start-up and clean-up code. Using templates in jinja2 and the helper function Form in FastAPI we let users enter a prompt and choose themselves whether to use the vanilla model or the one fine-tuned on Danish text. In that way they can compare the two. 
 
 ### Question 24
 
@@ -468,7 +480,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 24 fill here ---
+We successfully deployed the model both locally and in the cloud using Cloud Run.
+
+The service - running on Cloud Run - can be invoked (on Windows) by calling: 
+Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit `
+  -Method POST `
+  -Body @{ prompt = "Hello world"; use_finetuned = \$true } `
+  -ContentType "application/x-www-form-urlencoded"
 
 ### Question 25
 
@@ -483,7 +501,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 25 fill here ---
+For unit testing we first of all wrote a test to ensure the root loaded correctly. Then we wrote tests to ensure that both the vanilla and fine-tuned model loaded properly and returned a non-empty string when prompted. We also used locust to perform load testing. We didn't spend much time optimizing the runtime of our API, and didn't set up many resources on Cloud Run, so we expected it to be quite slow. With 10 users all prompting the model average time was 15 seconds, with 99th percentile of requests being 49 seconds. With a few simple tweaks to the code we got that down to average 11 seconds and a 99th percentile of 37 second - still very slow however. There a lots of ways we could increase performance. The API docker images are running CPU versions of PyTorch which slows down inference times, but keeps image size down - for example. We could also compile our model, set up auto-scaling of resources in Cloud Run etc.
 
 ### Question 26
 
@@ -498,7 +516,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 26 fill here ---
+In order to monitor our model we set up alerts in Cloud Monitoring. This works by monitoring the logs of our API when running in the cloud. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behaviour. This could easily be extended to monitor all kinds of different phenomena. We also considered logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage.
 
 ## Overall discussion of project
 
@@ -517,7 +535,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 27 fill here ---
+In terms of Credits all in all \$13.05 was spent. Most of it - \$10.99 - was spent on Vertex AI training. Second and third-most was Cloud RUn for running our API and Artifact Registry for storing our docker images, costing 89 cents and 50 cents respectively.
 
 ### Question 28
 
@@ -533,7 +551,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 28 fill here ---
+We have covered everything in the above questions, 
+Nikolaj maybe explain how you made the minimal front-end for the API?
 
 ### Question 29
 
@@ -550,7 +569,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 29 fill here ---
+--- question 30 fill here ---
 
 ### Question 30
 
@@ -564,7 +583,11 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 30 fill here ---
+Initially we spent a lot of time setting up data-loading, model-instantiation and training such that it fit well within our chosen template and made it simple to swap datasets, swap models and include more callbacks. This process involved growing pains as only one group member was familiar with the template, but we intentionally had other group member's set about implementing the data loading and model instantiation order to learn it. With the current implementation there is one base data module and it is instantiated at runtime with arbitrarily many datasets as specified in the data config file. Choosing the transformer model is also simply a matter of setting the checkpoint string to any hugging-face causal transformer model in the model config file. We are quite proud of how flexible and abstract we managed to keep the code. 
+With the size of the models and the datasets, we initially had persistent OOM issues on our local machines, but we managed to solve them through profiling, lowering batch size and tokenizing on the fly. 
+We also spent a lot of time writing cool callbacks and integrating them with wandb. All group members attempted writing at least one callback as an exercise to understand the concept. The fréchet distance callback and LLM judge callback provided meaningful ways to evaluate the performance of our generative model but were also significant challenges, as both required interfacing with a different model in their own way.
+
+Nikolaj? Struggles with API? 
 
 ### Question 31
 
@@ -582,4 +605,4 @@ will check the repositories and the code to verify your answers.
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+All students contributed to the project. Nikolaj (s214653@dtu.dk) was in charge of cloud training and API deployment. Andreas (s214630@dtu.dk) was in charge of structuring the model training setup. Gabriel (s214615@dtu.dk) was in charge of dataloading, managing the docker containers and writing unit tests. Gustav (s214657@dtu.dk) has helped all other members with each of their main tasks. All remaining tasks, such as making Github workflows, documentation, implementing datasets and training callbacks and so on has been a shared effort. We managed a todo list of every small piece that was missing and each member could then attribute to whatever was missing. We have used Github copilot to help during development and debugging, and we have used various chatbots (Gemini, ChatGPT, etc.) to help us understand the course content. 
