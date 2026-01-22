@@ -83,13 +83,13 @@ app = typer.Typer()
 @app.command()
 def html() -> None:
     """Convert README.md to html page."""
-    with Path("README.md").open() as file:
+    with Path("README.md").open(encoding="utf-8") as file:
         text = file.read()
     text = text[43:]  # remove header
 
     html = markdown.markdown(text)
 
-    with open("report.html", "w") as newfile:
+    with open("report.html", "w", encoding="utf-8") as newfile:
         newfile.write(html)
 
 

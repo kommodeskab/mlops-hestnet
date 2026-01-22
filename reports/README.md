@@ -410,7 +410,7 @@ Our use of the cloud relied on Compute Engine–backed services rather than dire
 >
 > Answer:
 
-In our project we didn't use a GCP bucket. Had we decided to continue training our model using Vertex AI saving the data to a GCP bucket would probably have been a good idea since the VM has no permanent storage, but could draw the data (with the right kind of server access granted) from the bucket. But since we ended up training mainly on DTUs HPC this was not necessary.
+In our project we created a GCP bucket and used it to store checkpoints for our model to be used by our API. In the end we found it easier to bake the data into our docker image.
 ![Bucket](figures/bucket.png)
 
 ### Question 20
@@ -480,12 +480,12 @@ We did write an API for our model. We used FastAPI to setup the app and handle t
 >
 > Answer:
 
-We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL.
-The service - running on Cloud Run - can be invoked (on Windows) by calling:
-Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit `
+We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL. 
+The service - running on Cloud Run - can be invoked (on Windows) by calling: 
+`Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit `
   -Method POST `
   -Body @{ prompt = "Hello world"; use_finetuned = \$true } `
-  -ContentType "application/x-www-form-urlencoded".
+  -ContentType "application/x-www-form-urlencoded".`
 
 ### Question 25
 
@@ -515,7 +515,7 @@ For unit testing we first of all wrote a test to ensure the root loaded correctl
 >
 > Answer:
 
-In order to monitor our model we set up alerts in the Cloud Monitoring service. This works by monitoring the logs of our API when running in the cloud, looking for specific keywords. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behavior. This could easily be extended to monitor all kinds of different phenomena. One could also consider logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage. Then the models outputs could be systematically offline.
+In order to monitor our model we set up alerts in the Cloud Monitoring service. This works by monitoring the logs of our API when running in the cloud, looking for specific keywords. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behavior. This could easily be extended to monitor all kinds of different phenomena. One could also consider logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage. Then the models outputs could be examined systematically offline.
 
 ## Overall discussion of project
 
