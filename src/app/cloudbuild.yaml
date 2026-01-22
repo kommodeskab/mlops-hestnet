@@ -9,7 +9,7 @@ steps:
     '-t',
     '${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}',
     '-f',
-    'api.dockerfile'
+    'src/app/api.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container image'
