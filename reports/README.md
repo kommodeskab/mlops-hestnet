@@ -570,7 +570,7 @@ Nikolaj maybe explain how you made the minimal front-end for the API?
 >
 > Answer:
 
---- question 30 fill here ---
+All members developed their code locally on their own machine. We shared the code with each other using Github and pull requests. We also used Github to test our code before merging with main. The machine learning part of the code was developed using a combination of Pytorch Lightning, Hydra and WandB. Experiment results and model checkpoints was shared to WandB where each member could analyze experiment results. We also used WandB for conducting hyperparameter sweeps; WandB could automatically deploy experiments on whatever machine we choose with promising hyperparameters in order to optimize some metric, usually the validation loss. We further used Huggingface to store and download datasets and to use pre-defined model architectures. We also trained models, either locally, on the DTU HPC, or in the cloud. We made a small task using `invoke` to quickly and seemlessly submit jobs on the DTU HPC. When training in the cloud, we first build a docker container of our current project which was then uploaded to a docker registry. From here, we could deploy and train the model using Google Cloud and Vertex AI. We also used the cloud to deploy our API. The API was developed using FastAPI for the backend and Jinja2 for the frontend. Of course, the API also used our model weights which was loaded from WandB.
 ![Overview](figures/mlops.drawio.png)
 
 ### Question 30
