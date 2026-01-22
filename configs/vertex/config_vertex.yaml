@@ -11,7 +11,7 @@ workerPoolSpecs:
           - uv
           - run
           - main.py
-          - +experiment=llm
+          - experiment=llm
         env:
         - name: WANDB_API_KEY
           value: $WANDB_API_KEY
