@@ -335,8 +335,8 @@ We ensured reproducibility of our experiments by combining configuration files, 
 We used Weights \& Biases (W\&B) as our experiment tracking platform, as it integrates seamlessly with PyTorch Lightning and provides real-time dashboards for monitoring training behavior. Figure 1 shows several runs where we track both optimization- and system-level metrics to better understand model performance and training dynamics. The metrics training loss and validation loss are central in assessing whether the model is learning meaningful representations, has converged, or is beginning to overfit. In our experiments, both losses decrease steadily, indicating stable learning and no severe overfitting. Validation loss is particularly important, as it reflects generalization to unseen data. We also log the learning rate: A stable learning rate combined with smoothly decreasing loss suggests that optimization is proceeding correctly. In addition to loss-based metrics, we track the gradient norm, which is important for diagnosing training stability. Exploding gradients would indicate instability, while vanishing gradients could slow learning; neither behavior is observed in our runs. We also log training and validation batches per second, which provide insight into computational efficiency and hardware utilization, allowing us to compare performance across different setups. In Figure 2, we track epoch progression relative to the global training step to contextualize learning dynamics across runs of different lengths. More importantly, we log the Fréchet distance, which serves as a higher-level evaluation metric for our masked token prediction setting. Unlike loss values, it captures how closely generated outputs match the distribution of real data in a learned feature space. We also intermittently log LLM-judge evaluations of the model's generated output using gemini as a metric for the model's generation quality and for qualitative evaluation of the output.
 Overall, combining loss, gradient, throughput, and distribution-based metrics provides a comprehensive view of convergence, stability, and output quality. We also conducted hyperparameter sweeps using WandB.
 ![std_img](figures/std_img.png)
-![alt text](frechet.png)
-![alt text](ModelGenerationAndEvalutionCallbackBlack.png)
+![frechet](figures/frechet.png)
+![LLMJudge](figures/ModelGenerationAndEvalutionCallbackBlack.png)
 
 ### Question 15
 
@@ -534,7 +534,9 @@ In order to monitor our model we set up alerts in the Cloud Monitoring service. 
 >
 > Answer:
 
-In terms of Credits all in all \$13.05 was spent. Most of it - \$10.99 - was spent on Vertex AI training. Second and third-most was Cloud RUn for running our API and Artifact Registry for storing our docker images, costing 89 cents and 50 cents respectively.
+In terms of Credits all in all \$13.05 was spent. Most of it - \$10.99 - was spent on Vertex AI training. Second and third-most was Cloud Run for running our API and Artifact Registry for storing our docker images, costing 89 cents and 50 cents respectively. There is a learning curve to working in the cloud, but it is quite accessible once you get accostumed to it. It is clear that cloud providers try hard to bring in students and companies while their experiments and services are still nascent and are willing to take a loss in order to profit once users scale up their operation. From then on it also becomes harder to switch cloud provider
+
+On the subject of price one group member started a free trial with his personal email and managed to upload model artifacts to a GCP bucket, upload many docker images to the Artifact Registry, deploy a containerised application using Cloud Run and perform many Gemini api calls with vertex AI without being billed any credits.
 
 ### Question 28
 
@@ -583,11 +585,13 @@ Nikolaj maybe explain how you made the minimal front-end for the API?
 >
 > Answer:
 
-Initially we spent a lot of time setting up data-loading, model-instantiation and training such that it fit well within our chosen template and made it simple to swap datasets, swap models and include more callbacks. This process involved growing pains as only one group member was familiar with the template, but we intentionally had other group member's set about implementing the data loading and model instantiation order to learn it. With the current implementation there is one base data module and it is instantiated at runtime with arbitrarily many datasets as specified in the data config file. Choosing the transformer model is also simply a matter of setting the checkpoint string to any hugging-face causal transformer model in the model config file. We are quite proud of how flexible and abstract we managed to keep the code.
+Initially we spent a lot of time setting up data-loading, model-instantiation and training such that it fit well within our chosen template and made it simple to swap datasets, swap models and include more callbacks. This process involved growing pains as only one group member was familiar with the template, but we intentionally had other group members set about implementing the data loading and model instantiation in order to learn it. With the current implementation there is one base data module and it is instantiated at runtime with arbitrarily many datasets as specified in the data config file. Choosing the transformer model is also simply a matter of setting the checkpoint string to any hugging-face causal transformer model in the model config file. We are quite proud of how flexible and abstract we managed to keep the code.
 With the size of the models and the datasets, we initially had persistent OOM issues on our local machines, but we managed to solve them through profiling, lowering batch size and tokenizing on the fly.
 We also spent a lot of time writing cool callbacks and integrating them with wandb. All group members attempted writing at least one callback as an exercise to understand the concept. The fréchet distance callback and LLM judge callback provided meaningful ways to evaluate the performance of our generative model but were also significant challenges, as both required interfacing with a different model in their own way.
 
-Nikolaj? Struggles with API?
+Interfacing with google cloud with a private github repo was also a significant struggle and major time sink. Multiple times we would go through the trouble to authenticating and trying to link to the github repo or similar to find that only the owner of the repo had access to that functionality and that we would have to make a github organization to share those permissions.
+Figuring out how to build and deploy a tiny website with the api with google cloud run also took some trail and error, but we now have two small websites up and running by two different members of the group that can be accessed here. https://hestnet1-805131364974.europe-west1.run.app, https://simple-api-342822129964.europe-west1.run.app/.
+
 
 ### Question 31
 
