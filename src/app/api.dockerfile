@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /api
 
 # Copy only requirements first (for Docker cache efficiency)
-COPY requirements_api.txt ./requirements_api.txt
+COPY src/app/requirements_api.txt ./requirements_api.txt
 
 RUN python -m pip install --upgrade pip
 
@@ -28,10 +28,11 @@ RUN pip install -r requirements_api.txt
 RUN python -c "from transformers import AutoModel, AutoTokenizer; AutoModel.from_pretrained('distilgpt2'); AutoTokenizer.from_pretrained('distilgpt2')"
 
 # Copy the entire api folder
-COPY . .
+COPY src/app .
+COPY weights/fine-tuned.ckpt ./weights/fine-tuned.ckpt
 
 # Expose port if running a web server (Cloud Run default)
 EXPOSE $PORT
 
 # Run the application
-CMD exec uvicorn api:app --port $PORT --host 0.0.0.0 --workers 1
+CMD exec uvicorn api:app --port ${PORT:-8080} --host 0.0.0.0 --workers 1

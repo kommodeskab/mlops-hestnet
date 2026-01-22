@@ -18,7 +18,9 @@ python -m uvicorn --reload --port 8000 src.app.api:app
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("api")
 
-templates = Jinja2Templates(directory=Path("src/app/templates"))
+template_dir = Path("src/app/templates") if Path("src/app/templates").exists() else Path("templates")
+logger.info(f"Template exists: {os.path.exists(template_dir)}")
+templates = Jinja2Templates(directory=template_dir)
 
 
 # Converts state_dicts from pytorch lightning to huggingface format
@@ -43,6 +45,8 @@ async def lifespan(app: FastAPI):
     model = AutoModelForCausalLM.from_pretrained("distilgpt2")
     model_ft = AutoModelForCausalLM.from_pretrained("distilgpt2")
     model_path = Path("weights/fine-tuned.ckpt")
+    logger.info(f"Looking for model at: {model_path.absolute()}")
+    logger.info(f"Model exists: {os.path.exists(model_path)}")
     if os.path.exists(model_path):
         ckpt = torch.load(model_path, map_location="cpu")
         state_dict = convert_lightning_to_hf(ckpt["state_dict"])
@@ -86,10 +90,10 @@ async def submit(request: Request, prompt: str = Form(...), use_finetuned: bool 
         logger.error("ERROR: empty output")
 
     return templates.TemplateResponse(
-        {
-            "request": request,
+        request=request,
+        name="index.html",
+        context={
             "result": response,
             "prompt": prompt,
         },
-        "index.html",
     )

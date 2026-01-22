@@ -7,15 +7,20 @@ steps:
     'build',
     '.',
     '-t',
-    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt',
+    '${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}',
     '-f',
-    'api.dockerfile'
+    'src/app/api.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container image'
   args: [
     'push',
-    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt'
+    '${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}'
   ]
 options:
   logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+    _LOCATION: europe-west1
+    _REPOSITORY: mlops-dockerimages
+    _IMAGE: api-image-logging
