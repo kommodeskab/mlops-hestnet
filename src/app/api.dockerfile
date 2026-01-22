@@ -29,10 +29,10 @@ RUN python -c "from transformers import AutoModel, AutoTokenizer; AutoModel.from
 
 # Copy the entire api folder
 COPY src/app .
-COPY weights/fine-tuned.ckpt weights/fine-tuned.ckpt
+COPY weights/fine-tuned.ckpt ./weights/fine-tuned.ckpt
 
 # Expose port if running a web server (Cloud Run default)
 EXPOSE $PORT
 
 # Run the application
-CMD exec uvicorn api:app --port $PORT --host 0.0.0.0 --workers 1
+CMD exec uvicorn api:app --port ${PORT:-8080} --host 0.0.0.0 --workers 1
