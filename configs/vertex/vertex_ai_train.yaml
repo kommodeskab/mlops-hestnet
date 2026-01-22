@@ -40,5 +40,5 @@ substitutions:
 
 availableSecrets:
   secretManager:
-  - versionName: projects/dtumlops-484208/secrets/WANDB_API_KEY/versions/latest
+  - versionName: projects/dtumlops-484208/secrets/WANDB_API_KEY/versions/latest # replace project id with ${GOOGLE_CLOUD_PROJECT}
     env: 'WANDB_API_KEY'
