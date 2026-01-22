@@ -571,7 +571,7 @@ Nikolaj maybe explain how you made the minimal front-end for the API?
 > Answer:
 
 --- question 30 fill here ---
-![Overview](figures/overview.png)
+![Overview](figures/mlops.drawio.png)
 
 ### Question 30
 
