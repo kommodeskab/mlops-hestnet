@@ -4,7 +4,6 @@ from fastapi.templating import Jinja2Templates
 import torch
 from contextlib import asynccontextmanager
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import copy
 import logging
 
 '''
@@ -17,6 +16,14 @@ logger = logging.getLogger("api")
 
 templates = Jinja2Templates(directory="templates")
 
+# Converts state_dicts from pytorch lightning to huggingface format
+def strip_state_dict(state_dict):
+    stripped_state_dict = {}
+    prefix = len("network.model.")
+    for k, v in state_dict.items():
+        stripped_state_dict[k[prefix:]] = v
+    return stripped_state_dict
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load and clean up model on startup and shutdown."""
@@ -24,10 +31,12 @@ async def lifespan(app: FastAPI):
     print("Loading models")
     tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
     model = AutoModelForCausalLM.from_pretrained("distilgpt2")
-    ckpt = torch.load("weights/fine-tuned.ckpt", map_location="cpu")
-    state_dict = ckpt['state_dict']
-    model_ft = copy.copy(model)
-    model_ft.load_state_dict(state_dict, strict=False)
+    model_ft = AutoModelForCausalLM.from_pretrained("distilgpt2")
+    ckpt = torch.load("weights/fine-tuned-bad.ckpt", map_location="cpu")
+    state_dict = strip_state_dict(ckpt['state_dict'])
+    missing , unexpected = model_ft.load_state_dict(state_dict)
+    assert len(missing) == 0, "Missing keys in state_dict"
+    assert len(unexpected) == 0, "Unexpected keys in state_dict" 
     model.eval()
     model_ft.eval()
 
@@ -53,8 +62,9 @@ async def submit(request: Request, prompt: str = Form(...),
     with torch.inference_mode():
         outputs = model_used.generate(
             **inputs,
-            max_new_tokens=30,
-            do_sample=False)
+            max_new_tokens=50,
+            do_sample=True,
+            top_p=0.95)
 
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
