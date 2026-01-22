@@ -5,6 +5,7 @@ import torch
 from contextlib import asynccontextmanager
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import logging
+import os
 
 '''
 To launch:
@@ -32,11 +33,14 @@ async def lifespan(app: FastAPI):
     tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
     model = AutoModelForCausalLM.from_pretrained("distilgpt2")
     model_ft = AutoModelForCausalLM.from_pretrained("distilgpt2")
-    ckpt = torch.load("weights/fine-tuned-bad.ckpt", map_location="cpu")
-    state_dict = strip_state_dict(ckpt['state_dict'])
-    missing , unexpected = model_ft.load_state_dict(state_dict)
-    assert len(missing) == 0, "Missing keys in state_dict"
-    assert len(unexpected) == 0, "Unexpected keys in state_dict" 
+    if os.path.exists("weights/fine-tuned.ckpt"):
+        ckpt = torch.load("weights/fine-tuned.ckpt", map_location="cpu")
+        state_dict = strip_state_dict(ckpt['state_dict'])
+        missing , unexpected = model_ft.load_state_dict(state_dict)
+        assert len(missing) == 0, "Missing keys in state_dict"
+        assert len(unexpected) == 0, "Unexpected keys in state_dict"
+    else:
+        print('No fine-tuned model') 
     model.eval()
     model_ft.eval()
 
