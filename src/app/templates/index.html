@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Tiny Danish LLM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f4f4f4;
+        }
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>The Tiny Danish LLM</h2>
+    <p>This is the distilgpt2 LLM finetuned on danish text.</p>
+
+    <form method="post" action="/submit">
+        <input
+            type="text"
+            name="prompt"
+            placeholder="Write prompt here"
+            value="{{ prompt or '' }}"
+            required
+        />
+        <label class="checkbox-label">
+            <input type="checkbox" name="use_finetuned">
+            Use fine-tuned weights
+        </label>
+        <button type="submit">Submit (might take a few seconds)</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            <strong>Prompt:</strong>
+            <p>{{ prompt }}</p>
+            <strong>Output:</strong>
+            <p>{{ result }}</p>
+        </div>
+    {% endif %}
+
+</body>
+</html>
