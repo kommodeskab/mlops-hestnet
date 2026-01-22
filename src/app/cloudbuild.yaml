@@ -1,0 +1,21 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  env:
+    - DOCKER_BUILDKIT=1
+  id: 'Build container image'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt',
+    '-f',
+    'api.dockerfile'
+  ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push container image'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/dtumlops-484208/dtumlops-dockerimages/api-image-logging-opt'
+  ]
+options:
+  logging: CLOUD_LOGGING_ONLY
