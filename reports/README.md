@@ -515,7 +515,7 @@ For unit testing we first of all wrote a test to ensure the root loaded correctl
 >
 > Answer:
 
-In order to monitor our model we set up alerts in Cloud Monitoring. This works by monitoring the logs of our API when running in the cloud. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behaviour. This could easily be extended to monitor all kinds of different phenomena. We also considered logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage.
+In order to monitor our model we set up alerts in the Cloud Monitoring service. This works by monitoring the logs of our API when running in the cloud, looking for specific keywords. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behavior. This could easily be extended to monitor all kinds of different phenomena. One could also consider logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage. Then the models outputs could be systematically offline.
 
 ## Overall discussion of project
 
@@ -569,6 +569,7 @@ Nikolaj maybe explain how you made the minimal front-end for the API?
 > Answer:
 
 --- question 30 fill here ---
+![Overview](figures/overview.png)
 
 ### Question 30
 
