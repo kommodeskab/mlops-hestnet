@@ -263,8 +263,8 @@ especially the reproducibility of your experiments.</p>
 <p>We used Weights \&amp; Biases (W\&amp;B) as our experiment tracking platform, as it integrates seamlessly with PyTorch Lightning and provides real-time dashboards for monitoring training behavior. Figure 1 shows several runs where we track both optimization- and system-level metrics to better understand model performance and training dynamics. The metrics training loss and validation loss are central in assessing whether the model is learning meaningful representations, has converged, or is beginning to overfit. In our experiments, both losses decrease steadily, indicating stable learning and no severe overfitting. Validation loss is particularly important, as it reflects generalization to unseen data. We also log the learning rate: A stable learning rate combined with smoothly decreasing loss suggests that optimization is proceeding correctly. In addition to loss-based metrics, we track the gradient norm, which is important for diagnosing training stability. Exploding gradients would indicate instability, while vanishing gradients could slow learning; neither behavior is observed in our runs. We also log training and validation batches per second, which provide insight into computational efficiency and hardware utilization, allowing us to compare performance across different setups. In Figure 2, we track epoch progression relative to the global training step to contextualize learning dynamics across runs of different lengths. More importantly, we log the Fréchet distance, which serves as a higher-level evaluation metric for our masked token prediction setting. Unlike loss values, it captures how closely generated outputs match the distribution of real data in a learned feature space. We also intermittently log LLM-judge evaluations of the model's generated output using gemini as a metric for the model's generation quality and for qualitative evaluation of the output.
 Overall, combining loss, gradient, throughput, and distribution-based metrics provides a comprehensive view of convergence, stability, and output quality. We also conducted hyperparameter sweeps using WandB.
 <img alt="std_img" src="figures/std_img.png" />
-<img alt="alt text" src="frechet.png" />
-<img alt="alt text" src="ModelGenerationAndEvalutionCallbackBlack.png" /></p>
+<img alt="frechet" src="figures/frechet.png" />
+<img alt="LLMJudge" src="figures/ModelGenerationAndEvalutionCallbackBlack.png" /></p>
 <h3>Question 15</h3>
 <blockquote>
 <p><strong>Docker is an important tool for creating containerized applications. Explain how you used docker in your</strong>
@@ -320,7 +320,7 @@ While the code is functional and reasonably efficient for our use case, we do no
 <strong>You can take inspiration from <a href="figures/bucket.png">this figure</a>.</strong></p>
 <p>Answer:</p>
 </blockquote>
-<p>In our project we didn't use a GCP bucket. Had we decided to continue training our model using Vertex AI saving the data to a GCP bucket would probably have been a good idea since the VM has no permanent storage, but could draw the data (with the right kind of server access granted) from the bucket. But since we ended up training mainly on DTUs HPC this was not necessary.
+<p>In our project we created a GCP bucket and used it to store checkpoints for our model to be used by our API. In the end we found it easier to bake the data into our docker image.
 <img alt="Bucket" src="figures/bucket.png" /></p>
 <h3>Question 20</h3>
 <blockquote>
@@ -373,11 +373,11 @@ While the code is functional and reasonably efficient for our use case, we do no
 <em><code>curl -X POST -F "file=@file.json"&lt;weburl&gt;</code></em></p>
 <p>Answer:</p>
 </blockquote>
-<p>We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL.
-The service - running on Cloud Run - can be invoked (on Windows) by calling:
-Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit <code>-Method POST</code>
-  -Body @{ prompt = "Hello world"; use_finetuned = \$true } `
-  -ContentType "application/x-www-form-urlencoded".</p>
+<p>We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL. 
+The service - running on Cloud Run - can be invoked (on Windows) by calling: 
+<code>Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit</code>
+  -Method POST <code>-Body @{ prompt = "Hello world"; use_finetuned = \$true }</code>
+  -ContentType "application/x-www-form-urlencoded".`</p>
 <h3>Question 25</h3>
 <blockquote>
 <p><strong>Did you perform any unit testing and load testing of your API? If yes, explain how you did it and what results for</strong>
@@ -399,7 +399,7 @@ Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.r
 <em>measure ... and ... that would inform us about this ... behaviour of our application.</em></p>
 <p>Answer:</p>
 </blockquote>
-<p>In order to monitor our model we set up alerts in the Cloud Monitoring service. This works by monitoring the logs of our API when running in the cloud, looking for specific keywords. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behavior. This could easily be extended to monitor all kinds of different phenomena. One could also consider logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage. Then the models outputs could be systematically offline.</p>
+<p>In order to monitor our model we set up alerts in the Cloud Monitoring service. This works by monitoring the logs of our API when running in the cloud, looking for specific keywords. Through the logging module we set up specific events, for example the return of an empty string to a prompt, that would then trigger an alert, sending an email to notify us of the behavior. This could easily be extended to monitor all kinds of different phenomena. One could also consider logging all input-output pairs produced by the model for monitoring, which would require a GCP Bucket for storage. Then the models outputs could be examined systematically offline.</p>
 <h2>Overall discussion of project</h2>
 <blockquote>
 <p>In the following section we would like you to think about the general structure of your project.</p>
@@ -414,7 +414,8 @@ Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.r
 <em>costing the most was ... due to ... . Working in the cloud was ...</em></p>
 <p>Answer:</p>
 </blockquote>
-<p>In terms of Credits all in all \$13.05 was spent. Most of it - \$10.99 - was spent on Vertex AI training. Second and third-most was Cloud RUn for running our API and Artifact Registry for storing our docker images, costing 89 cents and 50 cents respectively.</p>
+<p>In terms of Credits all in all \$13.05 was spent. Most of it - \$10.99 - was spent on Vertex AI training. Second and third-most was Cloud Run for running our API and Artifact Registry for storing our docker images, costing 89 cents and 50 cents respectively. There is a learning curve to working in the cloud, but it is quite accessible once you get accostumed to it. It is clear that cloud providers try hard to bring in students and companies while their experiments and services are still nascent and are willing to take a loss in order to profit once users scale up their operation. From then on it also becomes harder to switch cloud provider</p>
+<p>On the subject of price one group member started a free trial with his personal email and managed to upload model artifacts to a GCP bucket, upload many docker images to the Artifact Registry, deploy a containerised application using Cloud Run and perform many Gemini api calls with vertex AI without being billed any credits.</p>
 <h3>Question 28</h3>
 <blockquote>
 <p><strong>Did you implement anything extra in your project that is not covered by other questions? Maybe you implemented</strong>
@@ -439,8 +440,8 @@ Nikolaj maybe explain how you made the minimal front-end for the API?</p>
 <em>Whenever we commit code and push to GitHub, it auto triggers ... and ... . From there the diagram shows ...</em></p>
 <p>Answer:</p>
 </blockquote>
-<p>--- question 30 fill here ---
-<img alt="Overview" src="figures/overview.png" /></p>
+<p>All members developed their code locally on their own machine. We shared the code with each other using Github and pull requests. We also used Github to test our code before merging with main. The machine learning part of the code was developed using a combination of Pytorch Lightning, Hydra and WandB. Experiment results and model checkpoints was shared to WandB where each member could analyze experiment results. We also used WandB for conducting hyperparameter sweeps; WandB could automatically deploy experiments on whatever machine we choose with promising hyperparameters in order to optimize some metric, usually the validation loss. We further used Huggingface to store and download datasets and to use pre-defined model architectures. We also trained models, either locally, on the DTU HPC, or in the cloud. We made a small task using <code>invoke</code> to quickly and seemlessly submit jobs on the DTU HPC. When training in the cloud, we first build a docker container of our current project which was then uploaded to a docker registry. From here, we could deploy and train the model using Google Cloud and Vertex AI. We also used the cloud to deploy our API. The API was developed using FastAPI for the backend and Jinja2 for the frontend. Of course, the API also used our model weights which was loaded from WandB.
+<img alt="Overview" src="figures/mlops.drawio.png" /></p>
 <h3>Question 30</h3>
 <blockquote>
 <p><strong>Discuss the overall struggles of the project. Where did you spend most time and what did you do to overcome these</strong>
@@ -454,7 +455,7 @@ Nikolaj maybe explain how you made the minimal front-end for the API?</p>
 With the size of the models and the datasets, we initially had persistent OOM issues on our local machines, but we managed to solve them through profiling, lowering batch size and tokenizing on the fly.
 We also spent a lot of time writing cool callbacks and integrating them with wandb. All group members attempted writing at least one callback as an exercise to understand the concept. The fréchet distance callback and LLM judge callback provided meaningful ways to evaluate the performance of our generative model but were also significant challenges, as both required interfacing with a different model in their own way.</p>
 <p>Interfacing with google cloud with a private github repo was also a significant struggle and major time sink. Multiple times we would go through the trouble to authenticating and trying to link to the github repo or similar to find that only the owner of the repo had access to that functionality and that we would have to make a github organization to share those permissions.
-Figuring out how to build and deploy a tiny website with the api with google cloud run also took some trail and error, but we now have two small websites up and running by two different members of the group that can be accessed here. https://hestnet1-805131364974.europe-west1.run.app, https://simple-api-342822129964.europe-west1.run.app/. </p>
+Figuring out how to build and deploy a tiny website with the api with google cloud run also took some trail and error, but we now have two small websites up and running by two different members of the group that can be accessed here. https://hestnet1-805131364974.europe-west1.run.app, https://simple-api-342822129964.europe-west1.run.app/.</p>
 <h3>Question 31</h3>
 <blockquote>
 <p><strong>State the individual contributions of each team member. This is required information from DTU, because we need to</strong>
