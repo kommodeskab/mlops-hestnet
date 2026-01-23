@@ -68,7 +68,7 @@ will check the repositories and the code to verify your answers.
 * [X] Build the docker files locally and make sure they work as intended (M10)
 * [X] Write one or multiple configurations files for your experiments (M11)
 * [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
+* [X] Use profiling to optimize your code (M12)
 * [X] Use logging to log important events in your code (M14)
 * [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
 * [X] Consider running a hyperparameter optimization sweep (M14)
@@ -105,13 +105,13 @@ will check the repositories and the code to verify your answers.
 * [X] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [X] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [X] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
-* [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
+* [X] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
 ### Extra
 
 * [X] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
-* [ ] Revisit your initial project description. Did the project turn out as you wanted?
+* [X] Revisit your initial project description. Did the project turn out as you wanted?
 * [X] Create an architectural diagram over your MLOps pipeline
 * [X] Make sure all group members have an understanding about all parts of the project
 * [X] Uploaded all your code to GitHub
@@ -480,8 +480,8 @@ We did write an API for our model. We used FastAPI to setup the app and handle t
 >
 > Answer:
 
-We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL. 
-The service - running on Cloud Run - can be invoked (on Windows) by calling: 
+We successfully deployed the model both locally and in the cloud using Cloud Run. Locally we used uvicorn to launch the application, and using the reload flag be able to quickly try out changes. After we were satisfied we constructed a dockerfile for the application and uploaded it to our Artifact Registry. We then deployed our container using Cloud Run, and accessed it through the provided URL.
+The service - running on Cloud Run - can be invoked (on Windows) by calling:
 `Invoke-WebRequest -Uri https://api-image-logging-opt-342822129964.europe-west1.run.app/submit `
   -Method POST `
   -Body @{ prompt = "Hello world"; use_finetuned = \$true } `
