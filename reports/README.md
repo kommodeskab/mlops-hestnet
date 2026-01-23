@@ -431,7 +431,7 @@ Below we show the overall folder for our docker images, and the different versio
 >
 > Answer:
 
-Below we have an image of our Cloud Build history. The top three builds were all for the API, taking around 5 minutes. The GPU images for Vertex AI to longer.
+Below we have an image of our Cloud Build history. The top three builds were all for the API, taking around 5 minutes. The GPU images for Vertex AI took longer.
 ![cloudbuildhistory](figures/cloudbuildhistory.PNG)
 
 ### Question 22
@@ -552,8 +552,7 @@ On the subject of price one group member started a free trial with his personal 
 >
 > Answer:
 
-We have covered everything in the above questions,
-Nikolaj maybe explain how you made the minimal front-end for the API?
+We have covered everything in the above questions, also how we implemented a small frontend using jinja2 to handle html templates.
 
 ### Question 29
 
